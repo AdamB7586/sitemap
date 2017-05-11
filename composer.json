@@ -1,0 +1,21 @@
+{
+    "name": "adamb/sitemap",
+    "version": "1.0.1",
+    "description": "Create a sitemap for your site creaws any URL and creates a sitemap",
+    "type": "library",
+    "require": {
+        "sunra/php-simple-html-dom-parser": "^1.5"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adam Binnersley",
+            "email": "abinnersley@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "XMLSitemap\\": "src/"
+        }
+    }
+}
