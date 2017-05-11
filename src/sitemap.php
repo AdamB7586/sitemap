@@ -1,7 +1,4 @@
 <?php
-
-namespace Utility;
-
 use Sunra\PhpSimple\HtmlDomParser;
 
 class Sitemap{
