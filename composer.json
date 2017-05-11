@@ -1,6 +1,6 @@
 {
     "name": "adamb/sitemap",
-    "version": "1.0.1",
+    "version": "v1.0.1",
     "description": "Create a sitemap for your site creaws any URL and creates a sitemap",
     "type": "library",
     "require": {
