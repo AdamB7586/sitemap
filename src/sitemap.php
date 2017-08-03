@@ -1,14 +1,16 @@
 <?php
 use Sunra\PhpSimple\HtmlDomParser;
+use GuzzleHttp\Client;
 
 class Sitemap{
+    protected static $guzzle;
+    
     public $url;
     public $host;
     public $domain;
     public $links;
     public $images;
     
-    public $pageInfo;
     public $markup = '';
     
     /**
@@ -16,6 +18,7 @@ class Sitemap{
      * @param string $uri This should be the website homepage that you wish to crawl for the sitemap
      */
     public function __construct($uri){
+        self::$guzzle = new Client();
         $this->getMarkup($uri);
         $this->getLinks(1);
         $this->domain = $uri;
@@ -50,15 +53,11 @@ class Sitemap{
         $this->host = parse_url($this->url);
         $this->links[$uri]['visited'] = 1;
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_URL, $uri);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $this->markup = curl_exec($ch);
-        $this->pageInfo = curl_getinfo($ch);
+        $responce = self::$guzzle->request('GET', $uri);
+        $this->markup = $responce->getBody();
+        $pageInfo = curl_getinfo($ch);
         
-        if($this->pageInfo['http_code'] !== 200){$this->links[$uri]['error'] = $this->pageInfo;}
+        if($responce->getStatusCode() !== 200){$this->links[$uri]['error'] = $pageInfo;}
         else{
             $html = HtmlDomParser::str_get_html($this->markup);
             if($html){
@@ -137,7 +136,7 @@ class Sitemap{
     }
 
     /**
-     * This get all of the links for the current page and checks is they have already been added to the link list or not bofore adding and crawling
+     * This get all of the links for the current page and checks is they have already been added to the link list or not before adding and crawling
      * @param int $level This should be the maximum number of levels to crawl for the website
      * @return void
      */
