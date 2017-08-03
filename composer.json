@@ -4,7 +4,8 @@
     "description": "Create a sitemap for your site creaws any URL and creates a sitemap",
     "type": "library",
     "require": {
-        "sunra/php-simple-html-dom-parser": "^1.5"
+        "sunra/php-simple-html-dom-parser": "^1.5",
+        "guzzlehttp/guzzle": "^6.3"
     },
     "license": "MIT",
     "authors": [
