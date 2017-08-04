@@ -211,7 +211,7 @@ class Sitemap{
      * @param string $location The location of the video
      * @param string $title The title of the video
      * @param string $description A short description of the video
-     * @param string $thumbnailLoc The image thumbnail yo want to use for the video
+     * @param string $thumbnailLoc The image thumbnail you want to use for the video
      * @param int $duration The duration of the video (seconds I think)
      * @param string $friendly Is it a family friendly video yes/no
      * @param string $live Is it a live stream yes/no
