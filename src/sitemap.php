@@ -58,7 +58,7 @@ class Sitemap{
         
         $responce = self::$guzzle->request('GET', $uri);
         $this->markup = $responce->getBody();
-        
+        if($responce->getStatusCode() === 200){
             $html = HtmlDomParser::str_get_html($this->markup);
             if($html){
                 $this->content = $html->find('div[id=content]', 0)->innertext;
@@ -69,6 +69,7 @@ class Sitemap{
                 }
             }
         }
+        else{$this->links[$uri]['error'] = $responce->getStatusCode();}
     }
     
     /**
