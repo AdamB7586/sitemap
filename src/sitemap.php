@@ -1,4 +1,7 @@
 <?php
+
+namespace Sitemap;
+
 use Sunra\PhpSimple\HtmlDomParser;
 use GuzzleHttp\Client;
 
@@ -55,10 +58,7 @@ class Sitemap{
         
         $responce = self::$guzzle->request('GET', $uri);
         $this->markup = $responce->getBody();
-        $pageInfo = curl_getinfo($ch);
         
-        if($responce->getStatusCode() !== 200){$this->links[$uri]['error'] = $pageInfo;}
-        else{
             $html = HtmlDomParser::str_get_html($this->markup);
             if($html){
                 $this->content = $html->find('div[id=content]', 0)->innertext;
