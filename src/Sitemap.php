@@ -15,6 +15,7 @@ class Sitemap{
     public $images;
     
     public $markup = '';
+    pub
     public $contentID = 'content';
     
     /**
@@ -61,10 +62,10 @@ class Sitemap{
         $this->markup = $responce->getBody();
         if($responce->getStatusCode() === 200){
             $html = HtmlDomParser::str_get_html($this->markup);
-            $this->content = $html->find('div[id='.$this->contentID.']', 0)->innertext;
-            if($this->content){
-                $this->links[$uri]['markup'] = $this->content;
-                $this->links[$uri]['images'] = $this->getImages($this->content);
+            $content = $html->find('div[id='.$this->contentID.']', 0)->innertext;
+            if($content){
+                $this->links[$uri]['markup'] = $content;
+                $this->links[$uri]['images'] = $this->getImages($content);
             }
         }
         else{$this->links[$uri]['error'] = $responce->getStatusCode();}
