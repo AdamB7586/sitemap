@@ -15,7 +15,6 @@ class Sitemap{
     public $images;
     
     public $markup = '';
-    pub
     public $contentID = 'content';
     
     /**
@@ -77,9 +76,8 @@ class Sitemap{
      * @return array|boolean If the page has images which are not previously included in the sitemap an array will be return else returns false
      */
     private function getImages($htmlInfo){
-        $i = 0;
         $html = HtmlDomParser::str_get_html($htmlInfo);
-        foreach($html->find('img') as $images){
+        foreach($html->find('img') as $i => $images){
             $linkInfo = parse_url($images->src);
             if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
                 $fullLink = '';                    
@@ -103,9 +101,8 @@ class Sitemap{
      * @return boolean False is returned currently
      */
     private function getVideos($htmlInfo){
-        /*$i = 0;
-        $html = HtmlDomParser::str_get_html($htmlInfo);
-        foreach($html->find('img') as $images){
+        /*$html = HtmlDomParser::str_get_html($htmlInfo);
+        foreach($html->find('img') as $i => $images){
             $linkInfo = parse_url($images->src);
             if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
                 $fullLink = '';
@@ -236,14 +233,14 @@ class Sitemap{
             
             $images = '';
             if(!empty($info['images'])){
-                foreach($info['images'] as $imgID => $imgInfo){
+                foreach($info['images'] as $imgInfo){
                     $images.= $this->imageXML($imgInfo['src'], $imgInfo['alt']);
                 }
             }
             
             $videos = '';
             if(!empty($info['videos'])){
-                foreach($info['videos'] as $vidID => $vidInfo){
+                foreach($info['videos'] as $vidInfo){
                     $videos.= $this->videoXML($vidInfo['src'], $vidInfo['title'], $vidInfo['description'], $vidInfo['thumbnail']);
                 }
             }
