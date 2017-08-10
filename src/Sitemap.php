@@ -84,10 +84,7 @@ class Sitemap{
             foreach($html->find('img') as $images){
                 $linkInfo = parse_url($images->src);
                 if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
-                    $fullLink = '';
-                    if(!$linkInfo['path'] && $linkInfo['query']){$link = $this->host['path'].$images->src;}
-                    elseif($linkInfo['path'][0] != '/' && !$linkInfo['query']){$link = '/'.$images->src;}
-                    
+                    $fullLink = '';                    
                     if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
                     if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
                     $fullLink.= $images->src;
@@ -117,9 +114,6 @@ class Sitemap{
                 $linkInfo = parse_url($images->src);
                 if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
                     $fullLink = '';
-                    if(!$linkInfo['path'] && $linkInfo['query']){$link = $this->host['path'].$images->src;}
-                    elseif($linkInfo['path'][0] != '/' && !$linkInfo['query']){$link = '/'.$images->src;}
-                    
                     if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
                     if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
                     $fullLink.= $images->src;
@@ -197,7 +191,7 @@ class Sitemap{
      * Creates the image XML string information to add to the sitemap for the website
      * @param string $src The full source of the image including the domain
      * @param string $caption The caption to give the image in the sitemap
-     * @return string Return the formatted string for the imgae section of the sitemap
+     * @return string Return the formatted string for the image section of the sitemap
      */
     private function imageXML($src, $caption){
         return '<image:image>
