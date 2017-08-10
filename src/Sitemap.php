@@ -15,6 +15,7 @@ class Sitemap{
     public $images;
     
     public $markup = '';
+    public $contentID = 'content';
     
     /**
      * Crawl the homepage and get all of the links for that page
@@ -60,13 +61,10 @@ class Sitemap{
         $this->markup = $responce->getBody();
         if($responce->getStatusCode() === 200){
             $html = HtmlDomParser::str_get_html($this->markup);
-            if($html){
-                $this->content = $html->find('div[id=content]', 0)->innertext;
-		if(!$this->content){$this->content = $html->find('div[id=main]', 0)->innertext;}
-                if($this->content){
-                    $this->links[$uri]['markup'] = $this->content;
-                    $this->links[$uri]['images'] = $this->getImages($this->content);
-                }
+            $this->content = $html->find('div[id='.$this->contentID.']', 0)->innertext;
+            if($this->content){
+                $this->links[$uri]['markup'] = $this->content;
+                $this->links[$uri]['images'] = $this->getImages($this->content);
             }
         }
         else{$this->links[$uri]['error'] = $responce->getStatusCode();}
@@ -74,59 +72,54 @@ class Sitemap{
     
     /**
      * Get all of the images within the main content section of the website
-     * @param string $html This should be the HTML you wish to get the images
+     * @param string $htmlInfo This should be the HTML you wish to get the images
      * @return array|boolean If the page has images which are not previously included in the sitemap an array will be return else returns false
      */
-    private function getImages($html){
-        if(!empty($html)){
-            $i = 0;
-            $html = HtmlDomParser::str_get_html($html);
-            foreach($html->find('img') as $images){
-                $linkInfo = parse_url($images->src);
-                if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
-                    $fullLink = '';                    
-                    if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
-                    if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
-                    $fullLink.= $images->src;
-                    if(!$this->images[$fullLink]){
-                        $this->images[$fullLink] = $fullLink;
-                        $img[$i]['src'] = $fullLink;
-                        $img[$i]['alt'] = $images->alt;
-                        $i++;
-                    }
+    private function getImages($htmlInfo){
+        $i = 0;
+        $html = HtmlDomParser::str_get_html($htmlInfo);
+        foreach($html->find('img') as $images){
+            $linkInfo = parse_url($images->src);
+            if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
+                $fullLink = '';                    
+                if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
+                if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
+                $fullLink.= $images->src;
+                if(!$this->images[$fullLink]){
+                    $this->images[$fullLink] = $fullLink;
+                    $img[$i]['src'] = $fullLink;
+                    $img[$i]['alt'] = $images->alt;
+                    $i++;
                 }
             }
-            return $img[0] ? $img : false;
         }
-        return false;
+        return $img[0] ? $img : false;
     }
     
     /**
      * Get all of the video which are in the main content section of the website
-     * @param string $html This should be the HTML you wish to get the images
+     * @param string $htmlInfo This should be the HTML you wish to get the images
      * @return boolean False is returned currently
      */
-    private function getVideos($html){
-        if(!empty($html)){
-            /*$i = 0;
-            $html = HtmlDomParser::str_get_html($html);
-            foreach($html->find('img') as $images){
-                $linkInfo = parse_url($images->src);
-                if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
-                    $fullLink = '';
-                    if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
-                    if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
-                    $fullLink.= $images->src;
-                    if(!$this->images[$fullLink]){
-                        $this->images[$fullLink] = $fullLink;
-                        $img[$i]['src'] = $fullLink;
-                        $img[$i]['alt'] = $images->alt;
-                        $i++;
-                    }
+    private function getVideos($htmlInfo){
+        /*$i = 0;
+        $html = HtmlDomParser::str_get_html($htmlInfo);
+        foreach($html->find('img') as $images){
+            $linkInfo = parse_url($images->src);
+            if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
+                $fullLink = '';
+                if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
+                if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
+                $fullLink.= $images->src;
+                if(!$this->images[$fullLink]){
+                    $this->images[$fullLink] = $fullLink;
+                    $img[$i]['src'] = $fullLink;
+                    $img[$i]['alt'] = $images->alt;
+                    $i++;
                 }
             }
-            return $img[0] ? $img : false;*/      
         }
+        return $img[0] ? $img : false;*/
         return false;
     }
 
