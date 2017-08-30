@@ -114,7 +114,7 @@ class Sitemap {
     
     /**
      * Build the full link for use in the sitemap
-     * @param array $linkInfo This should be the information retrieved about the asset
+     * @param array|false $linkInfo This should be the information retrieved about the asset
      * @param string $src This should be the source of the asset
      * @return string This should be the full link URL for use in the sitemap
      */
