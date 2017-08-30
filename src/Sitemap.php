@@ -5,7 +5,7 @@ namespace Sitemap;
 use Sunra\PhpSimple\HtmlDomParser;
 use GuzzleHttp\Client;
 
-class Sitemap{
+class Sitemap {
     protected static $guzzle;
     
     public $url;
@@ -25,7 +25,7 @@ class Sitemap{
      * Crawl the homepage and get all of the links for that page
      * @param string $uri This should be the website homepage that you wish to crawl for the sitemap
      */
-    public function __construct($uri){
+    public function __construct($uri) {
         self::$guzzle = new Client();
         $this->getMarkup($uri);
         $this->getLinks(1);
@@ -37,11 +37,11 @@ class Sitemap{
      * @param int $maxlevels The maximum number of levels from the homepage that should be crawled fro the website
      * @return array And array is return with all of the site pages and information
      */
-    public function parseSite($maxlevels = 3){
+    public function parseSite($maxlevels = 3) {
         $level = 2;
-        for($i = 1; $i <= $maxlevels; $i++){
-            foreach($this->links as $link => $info){
-                if($info['visited'] == 0){
+        for ($i = 1; $i <= $maxlevels; $i++) {
+            foreach ($this->links as $link => $info) {
+                if ($info['visited'] == 0) {
                     $this->getMarkup($link);
                     $this->getLinks(($info['level'] + 1));
                 }
@@ -63,12 +63,12 @@ class Sitemap{
         
         $responce = self::$guzzle->request('GET', $uri);
         $this->markup = $responce->getBody();
-        if($responce->getStatusCode() === 200){
+        if ($responce->getStatusCode() === 200) {
             $html = HtmlDomParser::str_get_html($this->markup);
             $this->links[$uri]['markup'] = $html;
             $this->links[$uri]['images'] = $this->getImages($html);
         }
-        else{$this->links[$uri]['error'] = $responce->getStatusCode();}
+        else {$this->links[$uri]['error'] = $responce->getStatusCode();}
     }
     
     /**
@@ -99,10 +99,10 @@ class Sitemap{
     protected function getAssets($htmlInfo, $tag = 'img', $global = 'images'){
         $item = array();
         $html = HtmlDomParser::str_get_html($htmlInfo);
-        foreach($html->find($tag) as $i => $assets){
+        foreach ($html->find($tag) as $i => $assets) {
             $linkInfo = parse_url($assets->src);
             $fullLink = $this->buildLink($linkInfo, $assets->src);
-            if(!empty($fullLink) && !$this->$global[$fullLink]){
+            if (!empty($fullLink) && !$this->$global[$fullLink]) {
                 $this->$global[$fullLink] = $fullLink;
                 $item[$i]['src'] = $fullLink;
                 $item[$i]['alt'] = $assets->alt;
@@ -118,11 +118,11 @@ class Sitemap{
      * @param string $src This should be the source of the asset
      * @return string This should be the full link URL for use in the sitemap
      */
-    protected function buildLink($linkInfo, $src){
+    protected function buildLink($linkInfo, $src) {
         $fullLink = ''; 
-        if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
-            if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
-            if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
+        if (!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) {
+            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://';}
+            if (!$linkInfo['host']) {$fullLink.= $this->host['host'];}
             $fullLink.= $src;
         }
         return $fullLink;
@@ -134,26 +134,27 @@ class Sitemap{
      * @return void
      */
     private function getLinks($level = 1){
-        if(!empty($this->markup)){
+        if (!empty($this->markup)) {
             $html = HtmlDomParser::str_get_html($this->markup);
-            foreach(array_unique($html->find('a')) as $link){
-                if($link->rel !== 'nofollow'){
+            foreach (array_unique($html->find('a')) as $link) {
+                if ($link->rel !== 'nofollow') {
                     $link = $link->href;
                     $linkInfo = parse_url($link);
-                    if((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !$linkInfo['username'] && !$linkInfo['password']){
+                    if ((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !$linkInfo['username'] && !$linkInfo['password']) {
                         $linkExt = explode('.', $linkInfo['path']);
-                        if(!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))){
+                        if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
                             $fullLink = '';
-                            if(!$linkInfo['path'] && $linkInfo['query']){$link = $this->host['path'].$link;}
-                            elseif($linkInfo['path'][0] != '/' && !$linkInfo['query']){$link = '/'.$link;}
+                            if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link;}
+                            elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link;}
 
-                            if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
-                            if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
-                            if(str_replace('#'.$linkInfo['fragment'], '', $link) !== '/'){
+                            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://';}
+                            if (!$linkInfo['host']) {$fullLink.= $this->host['host'];}
+                            if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
                                 $fullLink.= $link;
                                 $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
-                                if(!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)){
-                                    if($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1){$num = 1;}else{$num = 0;}
+                                if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
+                                    if ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) {$num = 1;}
+                                    else {$num = 0;}
                                     $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
                                     $this->links[$EndLink]['visited'] = $num;
                                 }
@@ -175,7 +176,7 @@ class Sitemap{
      * @return string Returns the sitemap information as a formatted string
      */
     private function urlXML($url, $priority = '0.8', $freq = 'monthly', $modified = '', $additional = ''){
-        if(empty($modified)){$modified = date('c');}
+        if (empty($modified)) {$modified = date('c');}
         return '<url>
 <loc>'.$url.'</loc>
 <lastmod>'.date('c').'</lastmod>
@@ -191,7 +192,7 @@ class Sitemap{
      * @param string $caption The caption to give the image in the sitemap
      * @return string Return the formatted string for the image section of the sitemap
      */
-    private function imageXML($src, $caption){
+    private function imageXML($src, $caption) {
         return '<image:image>
 <image:loc>'.$src.'</image:loc>
 <image:caption>'.htmlentities($caption).'</image:caption>
@@ -209,7 +210,7 @@ class Sitemap{
      * @param string $live Is it a live stream yes/no
      * @return string Returns the video sitemap formatted string
      */
-    private function videoXML($location, $title, $description, $thumbnailLoc, $duration = '', $friendly = 'yes', $live = 'no'){
+    private function videoXML($location, $title, $description, $thumbnailLoc, $duration = '', $friendly = 'yes', $live = 'no') {
         return '<video:video>
 <video:thumbnail_loc>'.$thumbnailLoc.'</video:thumbnail_loc>
 <video:title>'.$title.'</video:title>
@@ -226,20 +227,20 @@ class Sitemap{
      * @param int $maxLevels The maximum number of levels to crawl from the homepage
      * @return string Returns the XML sitemap string
      */
-    public function createSitemap($maxLevels = 3, $styleURL = 'style.xsl'){
+    public function createSitemap($maxLevels = 3, $styleURL = 'style.xsl') {
         $sitemap = '<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="'.$styleURL.'"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        foreach($this->parseSite($maxLevels) as $url => $info){            
+        foreach ($this->parseSite($maxLevels) as $url => $info) {            
             $images = '';
-            if(!empty($info['images'])){
-                foreach($info['images'] as $imgInfo){
+            if (!empty($info['images'])) {
+                foreach ($info['images'] as $imgInfo) {
                     $images.= $this->imageXML($imgInfo['src'], $imgInfo['alt']);
                 }
             }
             
             $videos = '';
-            if(!empty($info['videos'])){
-                foreach($info['videos'] as $vidInfo){
+            if (!empty($info['videos'])) {
+                foreach ($info['videos'] as $vidInfo) {
                     $videos.= $this->videoXML($vidInfo['src'], $vidInfo['title'], $vidInfo['description'], $vidInfo['thumbnail']);
                 }
             }
