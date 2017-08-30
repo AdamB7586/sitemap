@@ -17,6 +17,9 @@ class Sitemap{
     public $markup = '';
     public $contentID = 'content';
     
+    protected $priority = array(0 => '1', 1 => '0.8', 2 => '0.6', 3 => '0.4', 4 => '0.2', 5 => '0.1');
+    protected $frequency = array(0 => 'weekly', 1 => 'weekly', 2 => 'monthly', 3 => 'monthly', 4 => 'monthly', 5 => 'yearly');
+    
     /**
      * Crawl the homepage and get all of the links for that page
      * @param string $uri This should be the website homepage that you wish to crawl for the sitemap
@@ -147,7 +150,7 @@ class Sitemap{
                                 $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
                                 if(!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)){
                                     if($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1){$num = 1;}else{$num = 0;}
-                                    $this->links[$EndLink]['level'] = $level;
+                                    $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
                                     $this->links[$EndLink]['visited'] = $num;
                                 }
                             }
@@ -222,15 +225,7 @@ class Sitemap{
     public function createSitemap($maxLevels = 3, $styleURL = 'style.xsl'){
         $sitemap = '<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="'.$styleURL.'"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        foreach($this->parseSite($maxLevels) as $url => $info){
-            if($info['level'] == 0 || !$info['level']){$priority = '1'; $freq = 'weekly';}
-            elseif($info['level'] == 1){$priority = '0.8'; $freq = 'weekly';}
-            elseif($info['level'] == 2){$priority = '0.6'; $freq = 'monthly';}
-            elseif($info['level'] == 3){$priority = '0.4'; $freq = 'monthly';}
-            elseif($info['level'] == 4){$priority = '0.2'; $freq = 'monthly';}
-            elseif($info['level'] == 5){$priority = '0.1'; $freq = 'monthly';}
-            else{$priority = '0.1'; $freq = 'yearly';}
-            
+        foreach($this->parseSite($maxLevels) as $url => $info){            
             $images = '';
             if(!empty($info['images'])){
                 foreach($info['images'] as $imgInfo){
@@ -244,7 +239,7 @@ class Sitemap{
                     $videos.= $this->videoXML($vidInfo['src'], $vidInfo['title'], $vidInfo['description'], $vidInfo['thumbnail']);
                 }
             }
-            $sitemap.= $this->urlXML($url, $priority, $freq, date('c'), $images.$videos);
+            $sitemap.= $this->urlXML($url, $this->priority[$info['level']], $this->frequency[$info['level']], date('c'), $images.$videos);
         }
         $sitemap.= '</urlset>';
         return $sitemap;
