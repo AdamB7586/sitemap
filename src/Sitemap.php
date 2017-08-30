@@ -13,6 +13,7 @@ class Sitemap{
     public $domain;
     public $links;
     public $images;
+    public $videos;
     
     public $markup = '';
     public $contentID = 'content';
@@ -64,64 +65,67 @@ class Sitemap{
         $this->markup = $responce->getBody();
         if($responce->getStatusCode() === 200){
             $html = HtmlDomParser::str_get_html($this->markup);
-            $content = $html->find('div[id='.$this->contentID.']', 0)->innertext;
-            if($content){
-                $this->links[$uri]['markup'] = $content;
-                $this->links[$uri]['images'] = $this->getImages($content);
-            }
+            $this->links[$uri]['markup'] = $html;
+            $this->links[$uri]['images'] = $this->getImages($html);
         }
         else{$this->links[$uri]['error'] = $responce->getStatusCode();}
     }
     
     /**
-     * Get all of the images within the main content section of the website
-     * @param string $htmlInfo This should be the HTML you wish to get the images
+     * Get all of the images within the HTML
+     * @param string $htmlInfo This should be the HTML you wish to get the images from
      * @return array|boolean If the page has images which are not previously included in the sitemap an array will be return else returns false
      */
-    private function getImages($htmlInfo){
-        $html = HtmlDomParser::str_get_html($htmlInfo);
-        foreach($html->find('img') as $i => $images){
-            $linkInfo = parse_url($images->src);
-            if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
-                $fullLink = '';                    
-                if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
-                if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
-                $fullLink.= $images->src;
-                if(!$this->images[$fullLink]){
-                    $this->images[$fullLink] = $fullLink;
-                    $img[$i]['src'] = $fullLink;
-                    $img[$i]['alt'] = $images->alt;
-                    $i++;
-                }
-            }
-        }
-        return $img[0] ? $img : false;
+    protected function getImages($htmlInfo){
+        return $this->getAssets($htmlInfo);
     }
     
     /**
-     * Get all of the video which are in the main content section of the website
-     * @param string $htmlInfo This should be the HTML you wish to get the images
-     * @return boolean False is returned currently
+     * Get all of the videos which are in the HTML
+     * @param string $htmlInfo This should be the HTML you wish to get the videos from
+     * @return array|boolean If the page has videos which are not previously included in the sitemap an array will be return else returns false
      */
-    private function getVideos($htmlInfo){
-        /*$html = HtmlDomParser::str_get_html($htmlInfo);
-        foreach($html->find('img') as $i => $images){
-            $linkInfo = parse_url($images->src);
-            if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
-                $fullLink = '';
-                if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
-                if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
-                $fullLink.= $images->src;
-                if(!$this->images[$fullLink]){
-                    $this->images[$fullLink] = $fullLink;
-                    $img[$i]['src'] = $fullLink;
-                    $img[$i]['alt'] = $images->alt;
-                    $i++;
-                }
+    protected function getVideos($htmlInfo){
+        return $this->getAssets($htmlInfo, 'video', 'videos');
+    }
+    
+    /**
+     * Get all of the assets based on the given variables from within the HTML
+     * @param string $htmlInfo This should be the HTML you wish to get the assets from
+     * @param string $tag This should be the tag you wish to search for in the HTML
+     * @param string $global This should be the name of the variable where the assets are stores to see if the assets already exists 
+     * @return array|boolean If the page has assets which are not previously included in the sitemap an array will be return else returns false
+     */
+    protected function getAssets($htmlInfo, $tag = 'img', $global = 'images'){
+        $item = array();
+        $html = HtmlDomParser::str_get_html($htmlInfo);
+        foreach($html->find($tag) as $i => $assets){
+            $linkInfo = parse_url($assets->src);
+            $fullLink = $this->buildLink($linkInfo, $assets->src);
+            if(!empty($fullLink) && !$this->$global[$fullLink]){
+                $this->$global[$fullLink] = $fullLink;
+                $item[$i]['src'] = $fullLink;
+                $item[$i]['alt'] = $assets->alt;
+                $i++;
             }
         }
-        return $img[0] ? $img : false;*/
-        return false;
+        return $item[0]['src'] ? $item : false;
+    }
+    
+    /**
+     * Build the full link for use in the sitemap
+     * @param array $linkInfo This should be the information retrieved about the asset
+     * @param string $src This should be the source of the asset
+     * @return string This should be the full link URL for use in the sitemap
+     */
+    protected function buildLink($linkInfo, $src){
+        $fullLink = ''; 
+        if(!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']){
+            if(!$linkInfo['scheme']){$fullLink.= $this->host['scheme'].'://';}
+            if(!$linkInfo['host']){$fullLink.= $this->host['host'];}
+            $fullLink.= $src;
+        }
+        return $fullLink;
     }
 
     /**
