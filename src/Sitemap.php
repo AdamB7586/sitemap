@@ -121,9 +121,9 @@ class Sitemap {
     protected function buildLink($linkInfo, $src) {
         $fullLink = ''; 
         if (!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) {
-            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://'; }
-            if (!$linkInfo['host']) {$fullLink.= $this->host['host']; }
-            $fullLink.= $src;
+            if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
+            if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
+            $fullLink .= $src;
         }
         return $fullLink;
     }
@@ -147,10 +147,10 @@ class Sitemap {
                             if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
                             elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
 
-                            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://'; }
-                            if (!$linkInfo['host']) {$fullLink.= $this->host['host']; }
+                            if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
+                            if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
                             if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
-                                $fullLink.= $link;
+                                $fullLink .= $link;
                                 $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
                                 if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
                                     $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
@@ -173,8 +173,8 @@ class Sitemap {
      * @param string $additional Any additional information to add to the sitemap on that page of the website such as images or videos
      * @return string Returns the sitemap information as a formatted string
      */
-    private function urlXML($url, $priority = '0.8', $freq = 'monthly', $modified = '', $additional = ''){
-        if (empty($modified)) {$modified = date('c');}
+    private function urlXML($url, $priority = '0.8', $freq = 'monthly', $modified = '', $additional = '') {
+        if (empty($modified)) {$modified = date('c'); }
         return '<url>
 <loc>'.$url.'</loc>
 <lastmod>'.date('c').'</lastmod>
@@ -232,19 +232,19 @@ class Sitemap {
             $images = '';
             if (!empty($info['images'])) {
                 foreach ($info['images'] as $imgInfo) {
-                    $images.= $this->imageXML($imgInfo['src'], $imgInfo['alt']);
+                    $images .= $this->imageXML($imgInfo['src'], $imgInfo['alt']);
                 }
             }
             
             $videos = '';
             if (!empty($info['videos'])) {
                 foreach ($info['videos'] as $vidInfo) {
-                    $videos.= $this->videoXML($vidInfo['src'], $vidInfo['title'], $vidInfo['description'], $vidInfo['thumbnail']);
+                    $videos .= $this->videoXML($vidInfo['src'], $vidInfo['title'], $vidInfo['description'], $vidInfo['thumbnail']);
                 }
             }
-            $sitemap.= $this->urlXML($url, $this->priority[$info['level']], $this->frequency[$info['level']], date('c'), $images.$videos);
+            $sitemap .= $this->urlXML($url, $this->priority[$info['level']], $this->frequency[$info['level']], date('c'), $images.$videos);
         }
-        $sitemap.= '</urlset>';
+        $sitemap .= '</urlset>';
         return $sitemap;
     }
 }
