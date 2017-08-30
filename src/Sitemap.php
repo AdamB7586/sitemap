@@ -56,7 +56,7 @@ class Sitemap {
      * @param string $uri This should be the page URL you wish to crawl and get the headers and page information
      * @return void
      */
-    private function getMarkup($uri){
+    private function getMarkup($uri) {
         $this->url = $uri;
         $this->host = parse_url($this->url);
         $this->links[$uri]['visited'] = 1;
@@ -68,7 +68,7 @@ class Sitemap {
             $this->links[$uri]['markup'] = $html;
             $this->links[$uri]['images'] = $this->getImages($html);
         }
-        else {$this->links[$uri]['error'] = $responce->getStatusCode();}
+        else {$this->links[$uri]['error'] = $responce->getStatusCode(); }
     }
     
     /**
@@ -76,7 +76,7 @@ class Sitemap {
      * @param string $htmlInfo This should be the HTML you wish to get the images from
      * @return array|boolean If the page has images which are not previously included in the sitemap an array will be return else returns false
      */
-    protected function getImages($htmlInfo){
+    protected function getImages($htmlInfo) {
         return $this->getAssets($htmlInfo);
     }
     
@@ -85,7 +85,7 @@ class Sitemap {
      * @param string $htmlInfo This should be the HTML you wish to get the videos from
      * @return array|boolean If the page has videos which are not previously included in the sitemap an array will be return else returns false
      */
-    protected function getVideos($htmlInfo){
+    protected function getVideos($htmlInfo) {
         return $this->getAssets($htmlInfo, 'video', 'videos');
     }
     
@@ -96,7 +96,7 @@ class Sitemap {
      * @param string $global This should be the name of the variable where the assets are stores to see if the assets already exists 
      * @return array|boolean If the page has assets which are not previously included in the sitemap an array will be return else returns false
      */
-    protected function getAssets($htmlInfo, $tag = 'img', $global = 'images'){
+    protected function getAssets($htmlInfo, $tag = 'img', $global = 'images') {
         $item = array();
         $html = HtmlDomParser::str_get_html($htmlInfo);
         foreach ($html->find($tag) as $i => $assets) {
@@ -121,8 +121,8 @@ class Sitemap {
     protected function buildLink($linkInfo, $src) {
         $fullLink = ''; 
         if (!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) {
-            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://';}
-            if (!$linkInfo['host']) {$fullLink.= $this->host['host'];}
+            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://'; }
+            if (!$linkInfo['host']) {$fullLink.= $this->host['host']; }
             $fullLink.= $src;
         }
         return $fullLink;
@@ -133,7 +133,7 @@ class Sitemap {
      * @param int $level This should be the maximum number of levels to crawl for the website
      * @return void
      */
-    private function getLinks($level = 1){
+    private function getLinks($level = 1) {
         if (!empty($this->markup)) {
             $html = HtmlDomParser::str_get_html($this->markup);
             foreach (array_unique($html->find('a')) as $link) {
@@ -144,11 +144,11 @@ class Sitemap {
                         $linkExt = explode('.', $linkInfo['path']);
                         if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
                             $fullLink = '';
-                            if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link;}
-                            elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link;}
+                            if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
+                            elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
 
-                            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://';}
-                            if (!$linkInfo['host']) {$fullLink.= $this->host['host'];}
+                            if (!$linkInfo['scheme']) {$fullLink.= $this->host['scheme'].'://'; }
+                            if (!$linkInfo['host']) {$fullLink.= $this->host['host']; }
                             if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
                                 $fullLink.= $link;
                                 $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
