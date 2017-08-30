@@ -153,10 +153,8 @@ class Sitemap {
                                 $fullLink.= $link;
                                 $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
                                 if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
-                                    if ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) {$num = 1;}
-                                    else {$num = 0;}
                                     $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
-                                    $this->links[$EndLink]['visited'] = $num;
+                                    $this->links[$EndLink]['visited'] = ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) ? 1 : 0;
                                 }
                             }
                         }
