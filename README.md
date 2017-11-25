@@ -46,7 +46,7 @@ $sitemap->setFilePath($_SERVER['DOCUMENT_ROOT'].'sitemaps/');
 
 // or
 
-$sitemap->setFilePath('C:\Inetpub\mywebsite.co.uk\httpdocs\sitemaps\');
+$sitemap->setFilePath('C:\Inetpub\mywebsite.co.uk\httpdocs\sitemaps\\');
 
 $sitemap->createSitemap();
 
