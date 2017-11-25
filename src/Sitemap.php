@@ -266,7 +266,7 @@ class Sitemap {
             $sitemap .= $this->urlXML($url, $this->priority[$info['level']], $this->frequency[$info['level']], date('c'), $images.$videos);
         }
         $sitemap .= '</urlset>';
-        $this->copyXMLStyle();
+        if($includeStyle === true){$this->copyXMLStyle();}
         return file_put_contents($this->getFilePath().strtolower($filename).'.xml', $sitemap) !== false ? true : false;
     }
     
