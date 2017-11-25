@@ -58,13 +58,13 @@ By default the sitemap creates a XSL stylesheet along with the sitemap. You can 
 
 ```php
 
-\\ To not include the XSL stylesheet set the first value to false when calling createSitemap();
+// To not include the XSL stylesheet set the first value to false when calling createSitemap();
 $sitemap->createSitemap(false);
 
-\\ To only include links within 3 click set the second value to 3
+// To only include links within 3 click set the second value to 3
 $sitemap->createSitemap(true, 3);
 
-\\ To change the filename set the third value to your filename (excluding extension)
+// To change the filename set the third value to your filename (excluding extension)
 $sitemap->createSitemap(true, 5, 'mysitemapfile');
 
 ```
