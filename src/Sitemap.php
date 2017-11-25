@@ -26,12 +26,32 @@ class Sitemap {
      * Crawl the homepage and get all of the links for that page
      * @param string $uri This should be the website homepage that you wish to crawl for the sitemap
      */
-    public function __construct($uri) {
+    public function __construct($uri = NULL) {
         $this->guzzle = new Client();
+        if($uri !== NULL){
+            $this->setDomain($uri);
+        }
+        $this->setFilePath($_SERVER['DOCUMENT_ROOT']);
+    }
+    
+    /**
+     * Sets the domain that the sitemap should be created for
+     * @param string $uri This should be the URL That you wish to create the sitemap for
+     * @return $this Returns $this for method chaining 
+     */
+    public function setDomain($uri){
         $this->getMarkup($uri);
         $this->getLinks(1);
         $this->domain = $uri;
-        $this->setFilePath($_SERVER['DOCUMENT_ROOT']);
+        return $this;
+    }
+    
+    /**
+     * Returns the current URL that the sitemap is being created for
+     * @return string This will be the URL that the sitemap is being created for
+     */
+    public function getDomain(){
+        return $this->domain;
     }
 
     /**
