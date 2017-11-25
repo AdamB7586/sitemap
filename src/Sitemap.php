@@ -6,8 +6,9 @@ use Sunra\PhpSimple\HtmlDomParser;
 use GuzzleHttp\Client;
 
 class Sitemap {
-    protected static $guzzle;
+    protected $guzzle;
     
+    public $filepath;
     public $url;
     public $host;
     public $domain;
@@ -26,10 +27,29 @@ class Sitemap {
      * @param string $uri This should be the website homepage that you wish to crawl for the sitemap
      */
     public function __construct($uri) {
-        self::$guzzle = new Client();
+        $this->guzzle = new Client();
         $this->getMarkup($uri);
         $this->getLinks(1);
         $this->domain = $uri;
+        $this->setFilePath($_SERVER['DOCUMENT_ROOT']);
+    }
+
+    /**
+     * Set where the files will be created
+     * @param string $path Set the absolute path where you want the sitemap files to be created
+     * @return $this
+     */
+    public function setFilePath($path){
+        $this->filepath = $path;
+        return $this;
+    }
+    
+    /**
+     * Gets the absolute path where files will be created
+     * @return string This will be the absolute path where files are created
+     */
+    public function getFilePath(){
+        return $this->filepath;
     }
     
     /**
@@ -37,7 +57,7 @@ class Sitemap {
      * @param int $maxlevels The maximum number of levels from the homepage that should be crawled fro the website
      * @return array And array is return with all of the site pages and information
      */
-    public function parseSite($maxlevels = 3) {
+    public function parseSite($maxlevels = 5) {
         $level = 2;
         for ($i = 1; $i <= $maxlevels; $i++) {
             foreach ($this->links as $link => $info) {
@@ -61,7 +81,7 @@ class Sitemap {
         $this->host = parse_url($this->url);
         $this->links[$uri]['visited'] = 1;
         
-        $responce = self::$guzzle->request('GET', $uri);
+        $responce = $this->guzzle->request('GET', $uri);
         $this->markup = $responce->getBody();
         if ($responce->getStatusCode() === 200) {
             $html = HtmlDomParser::str_get_html($this->markup);
@@ -222,12 +242,13 @@ class Sitemap {
     
     /**
      * Create a XML sitemap using the URL given during construct and crawls the rest of the websites
+     * @param boolean $includeStyle If you want the XML Style to also be created set this as true else set as false
      * @param int $maxLevels The maximum number of levels to crawl from the homepage
-     * @return string Returns the XML sitemap string
+     * @param string $filename If you want to set the filename to be something other than sitemap set this value here
+     * @return boolean Returns true if successful else returns false on failure
      */
-    public function createSitemap($maxLevels = 3, $styleURL = 'style.xsl') {
-        $sitemap = '<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="'.$styleURL.'"?>
-<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    public function createSitemap($includeStyle = true, $maxLevels = 5, $filename = 'sitemap') {
+        $sitemap = '<?xml version="1.0" encoding="UTF-8"?>'.($includeStyle === true ? '<?xml-stylesheet type="text/xsl" href="style.xsl"?>' : '').'<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
         foreach ($this->parseSite($maxLevels) as $url => $info) {            
             $images = '';
             if (!empty($info['images'])) {
@@ -245,6 +266,16 @@ class Sitemap {
             $sitemap .= $this->urlXML($url, $this->priority[$info['level']], $this->frequency[$info['level']], date('c'), $images.$videos);
         }
         $sitemap .= '</urlset>';
-        return $sitemap;
+        $this->copyXMLStyle();
+        return file_put_contents($this->getFilePath().strtolower($filename).'.xml', $sitemap) !== false ? true : false;
+    }
+    
+    /**
+     * Copy the XSL stylesheet so that it is local to the sitemap 
+     * @return boolean If the style is successfully created will return true else returns false
+     */
+    protected function copyXMLStyle(){
+        $style = file_get_contents(realpath(dirname(__FILE__)).'style.xsl');
+        return file_put_contents($this->getFilePath().'style.xsl', $style) !== false ? true : false;
     }
 }
