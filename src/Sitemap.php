@@ -77,7 +77,7 @@ class Sitemap {
      * @param int $maxlevels The maximum number of levels from the homepage that should be crawled fro the website
      * @return array And array is return with all of the site pages and information
      */
-    public function parseSite($maxlevels = 5) {
+    protected function parseSite($maxlevels = 5) {
         $level = 2;
         for ($i = 1; $i <= $maxlevels; $i++) {
             foreach ($this->links as $link => $info) {
