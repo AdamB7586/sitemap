@@ -28,7 +28,7 @@ class Sitemap {
      */
     public function __construct($uri = NULL) {
         $this->guzzle = new Client();
-        if($uri !== NULL){
+        if($uri !== NULL) {
             $this->setDomain($uri);
         }
         $this->setFilePath($_SERVER['DOCUMENT_ROOT']);
@@ -39,7 +39,7 @@ class Sitemap {
      * @param string $uri This should be the URL That you wish to create the sitemap for
      * @return $this Returns $this for method chaining 
      */
-    public function setDomain($uri){
+    public function setDomain($uri) {
         $this->getMarkup($uri);
         $this->getLinks(1);
         $this->domain = $uri;
@@ -50,7 +50,7 @@ class Sitemap {
      * Returns the current URL that the sitemap is being created for
      * @return string This will be the URL that the sitemap is being created for
      */
-    public function getDomain(){
+    public function getDomain() {
         return $this->domain;
     }
 
@@ -59,7 +59,7 @@ class Sitemap {
      * @param string $path Set the absolute path where you want the sitemap files to be created
      * @return $this
      */
-    public function setFilePath($path){
+    public function setFilePath($path) {
         $this->filepath = $path;
         return $this;
     }
@@ -68,7 +68,7 @@ class Sitemap {
      * Gets the absolute path where files will be created
      * @return string This will be the absolute path where files are created
      */
-    public function getFilePath(){
+    public function getFilePath() {
         return $this->filepath;
     }
     
@@ -286,7 +286,7 @@ class Sitemap {
             $sitemap .= $this->urlXML($url, $this->priority[$info['level']], $this->frequency[$info['level']], date('c'), $images.$videos);
         }
         $sitemap .= '</urlset>';
-        if($includeStyle === true){$this->copyXMLStyle();}
+        if($includeStyle === true) {$this->copyXMLStyle();}
         return file_put_contents($this->getFilePath().strtolower($filename).'.xml', $sitemap) !== false ? true : false;
     }
     
@@ -294,7 +294,7 @@ class Sitemap {
      * Copy the XSL stylesheet so that it is local to the sitemap 
      * @return boolean If the style is successfully created will return true else returns false
      */
-    protected function copyXMLStyle(){
+    protected function copyXMLStyle() {
         $style = file_get_contents(realpath(dirname(__FILE__)).'style.xsl');
         return file_put_contents($this->getFilePath().'style.xsl', $style) !== false ? true : false;
     }
