@@ -214,10 +214,9 @@ class Sitemap {
      * @return string Returns the sitemap information as a formatted string
      */
     private function urlXML($url, $priority = '0.8', $freq = 'monthly', $modified = '', $additional = '') {
-        if (empty($modified)) {$modified = date('c'); }
         return '<url>
 <loc>'.$url.'</loc>
-<lastmod>'.date('c').'</lastmod>
+<lastmod>'.(empty($modified) ? date('c') : $modified).'</lastmod>
 <changefreq>'.$freq.'</changefreq>
 <priority>'.$priority.'</priority>'.$additional.'
 </url>
