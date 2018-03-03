@@ -149,7 +149,7 @@ class Sitemap {
                 $i++;
             }
         }
-        return $item[0]['src'] ? $item : false;
+        return isset($item[0]['src']) ? $item : false;
     }
     
     /**

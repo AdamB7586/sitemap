@@ -22,9 +22,12 @@ class SitemapTest extends TestCase{
      * @covers Sitemap\Sitemap::getMarkup
      * @covers Sitemap\Sitemap::getImages
      * @covers Sitemap\Sitemap::getLinks
+     * @covers Sitemap\Sitemap::addLinktoArray
+     * @covers Sitemap\Sitemap::getAssets
+     * @covers Sitemap\Sitemap::setFilePath
      */
     public function testSetDomain() {
-        $this->assertObjectHasAttribute('url', $this->sitemap->setDomain('https://www.google.co.uk'));
+        $this->assertObjectHasAttribute('url', $this->sitemap->setDomain('http://www.example.com/'));
     }
     
     public function testGetDomain() {

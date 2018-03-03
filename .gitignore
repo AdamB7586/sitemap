@@ -2,3 +2,4 @@
 /vendor/
 .gitignore
 composer.lock
+clover.xml
