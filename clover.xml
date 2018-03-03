@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1520113616">
+  <project timestamp="1520113616">
+    <package name="Sitemap">
+      <file name="C:\wamp\www\repos\sitemap\src/Sitemap.php">
+        <class name="Sitemap" namespace="Sitemap">
+          <metrics complexity="61" methods="17" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="104" coveredstatements="0" elements="121" coveredelements="0"/>
+        </class>
+        <line num="29" type="method" name="__construct" visibility="public" complexity="2" crap="6" count="0"/>
+        <line num="30" type="stmt" count="0"/>
+        <line num="31" type="stmt" count="0"/>
+        <line num="32" type="stmt" count="0"/>
+        <line num="34" type="stmt" count="0"/>
+        <line num="35" type="stmt" count="0"/>
+        <line num="42" type="method" name="setDomain" visibility="public" complexity="1" crap="2" count="0"/>
+        <line num="43" type="stmt" count="0"/>
+        <line num="44" type="stmt" count="0"/>
+        <line num="45" type="stmt" count="0"/>
+        <line num="46" type="stmt" count="0"/>
+        <line num="53" type="method" name="getDomain" visibility="public" complexity="1" crap="2" count="0"/>
+        <line num="54" type="stmt" count="0"/>
+        <line num="62" type="method" name="setFilePath" visibility="public" complexity="1" crap="2" count="0"/>
+        <line num="63" type="stmt" count="0"/>
+        <line num="64" type="stmt" count="0"/>
+        <line num="71" type="method" name="getFilePath" visibility="public" complexity="1" crap="2" count="0"/>
+        <line num="72" type="stmt" count="0"/>
+        <line num="80" type="method" name="parseSite" visibility="protected" complexity="4" crap="20" count="0"/>
+        <line num="81" type="stmt" count="0"/>
+        <line num="82" type="stmt" count="0"/>
+        <line num="83" type="stmt" count="0"/>
+        <line num="84" type="stmt" count="0"/>
+        <line num="85" type="stmt" count="0"/>
+        <line num="86" type="stmt" count="0"/>
+        <line num="88" type="stmt" count="0"/>
+        <line num="91" type="stmt" count="0"/>
+        <line num="99" type="method" name="getMarkup" visibility="private" complexity="2" crap="6" count="0"/>
+        <line num="100" type="stmt" count="0"/>
+        <line num="101" type="stmt" count="0"/>
+        <line num="102" type="stmt" count="0"/>
+        <line num="104" type="stmt" count="0"/>
+        <line num="105" type="stmt" count="0"/>
+        <line num="106" type="stmt" count="0"/>
+        <line num="107" type="stmt" count="0"/>
+        <line num="108" type="stmt" count="0"/>
+        <line num="109" type="stmt" count="0"/>
+        <line num="111" type="stmt" count="0"/>
+        <line num="112" type="stmt" count="0"/>
+        <line num="119" type="method" name="getImages" visibility="protected" complexity="1" crap="2" count="0"/>
+        <line num="120" type="stmt" count="0"/>
+        <line num="128" type="method" name="getVideos" visibility="protected" complexity="1" crap="2" count="0"/>
+        <line num="129" type="stmt" count="0"/>
+        <line num="139" type="method" name="getAssets" visibility="protected" complexity="5" crap="30" count="0"/>
+        <line num="140" type="stmt" count="0"/>
+        <line num="141" type="stmt" count="0"/>
+        <line num="142" type="stmt" count="0"/>
+        <line num="143" type="stmt" count="0"/>
+        <line num="144" type="stmt" count="0"/>
+        <line num="145" type="stmt" count="0"/>
+        <line num="146" type="stmt" count="0"/>
+        <line num="147" type="stmt" count="0"/>
+        <line num="148" type="stmt" count="0"/>
+        <line num="149" type="stmt" count="0"/>
+        <line num="152" type="stmt" count="0"/>
+        <line num="161" type="method" name="buildLink" visibility="protected" complexity="5" crap="30" count="0"/>
+        <line num="162" type="stmt" count="0"/>
+        <line num="163" type="stmt" count="0"/>
+        <line num="164" type="stmt" count="0"/>
+        <line num="165" type="stmt" count="0"/>
+        <line num="166" type="stmt" count="0"/>
+        <line num="168" type="stmt" count="0"/>
+        <line num="176" type="method" name="getLinks" visibility="private" complexity="22" crap="506" count="0"/>
+        <line num="177" type="stmt" count="0"/>
+        <line num="178" type="stmt" count="0"/>
+        <line num="179" type="stmt" count="0"/>
+        <line num="180" type="stmt" count="0"/>
+        <line num="181" type="stmt" count="0"/>
+        <line num="182" type="stmt" count="0"/>
+        <line num="183" type="stmt" count="0"/>
+        <line num="184" type="stmt" count="0"/>
+        <line num="185" type="stmt" count="0"/>
+        <line num="186" type="stmt" count="0"/>
+        <line num="187" type="stmt" count="0"/>
+        <line num="188" type="stmt" count="0"/>
+        <line num="190" type="stmt" count="0"/>
+        <line num="191" type="stmt" count="0"/>
+        <line num="192" type="stmt" count="0"/>
+        <line num="193" type="stmt" count="0"/>
+        <line num="194" type="stmt" count="0"/>
+        <line num="195" type="stmt" count="0"/>
+        <line num="196" type="stmt" count="0"/>
+        <line num="197" type="stmt" count="0"/>
+        <line num="205" type="stmt" count="0"/>
+        <line num="216" type="method" name="urlXML" visibility="private" complexity="2" crap="6" count="0"/>
+        <line num="218" type="stmt" count="0"/>
+        <line num="219" type="stmt" count="0"/>
+        <line num="220" type="stmt" count="0"/>
+        <line num="221" type="stmt" count="0"/>
+        <line num="223" type="stmt" count="0"/>
+        <line num="232" type="method" name="imageXML" visibility="private" complexity="1" crap="2" count="0"/>
+        <line num="234" type="stmt" count="0"/>
+        <line num="235" type="stmt" count="0"/>
+        <line num="236" type="stmt" count="0"/>
+        <line num="250" type="method" name="videoXML" visibility="private" complexity="1" crap="2" count="0"/>
+        <line num="252" type="stmt" count="0"/>
+        <line num="253" type="stmt" count="0"/>
+        <line num="254" type="stmt" count="0"/>
+        <line num="255" type="stmt" count="0"/>
+        <line num="256" type="stmt" count="0"/>
+        <line num="257" type="stmt" count="0"/>
+        <line num="258" type="stmt" count="0"/>
+        <line num="259" type="stmt" count="0"/>
+        <line num="269" type="method" name="createSitemap" visibility="public" complexity="9" crap="90" count="0"/>
+        <line num="270" type="stmt" count="0"/>
+        <line num="271" type="stmt" count="0"/>
+        <line num="272" type="stmt" count="0"/>
+        <line num="273" type="stmt" count="0"/>
+        <line num="274" type="stmt" count="0"/>
+        <line num="275" type="stmt" count="0"/>
+        <line num="279" type="stmt" count="0"/>
+        <line num="280" type="stmt" count="0"/>
+        <line num="281" type="stmt" count="0"/>
+        <line num="282" type="stmt" count="0"/>
+        <line num="285" type="stmt" count="0"/>
+        <line num="287" type="stmt" count="0"/>
+        <line num="288" type="stmt" count="0"/>
+        <line num="289" type="stmt" count="0"/>
+        <line num="296" type="method" name="copyXMLStyle" visibility="protected" complexity="2" crap="6" count="0"/>
+        <line num="297" type="stmt" count="0"/>
+        <line num="298" type="stmt" count="0"/>
+        <metrics loc="300" ncloc="203" classes="1" methods="17" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="104" coveredstatements="0" elements="121" coveredelements="0"/>
+      </file>
+    </package>
+    <metrics files="1" loc="300" ncloc="203" classes="1" methods="17" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="104" coveredstatements="0" elements="121" coveredelements="0"/>
+  </project>
+</coverage>

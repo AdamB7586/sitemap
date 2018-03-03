@@ -171,33 +171,38 @@ class Sitemap {
     /**
      * This get all of the links for the current page and checks is they have already been added to the link list or not before adding and crawling
      * @param int $level This should be the maximum number of levels to crawl for the website
-     * @return void
      */
-    private function getLinks($level = 1) {
+    protected function getLinks($level = 1) {
         if (!empty($this->markup)) {
             $html = HtmlDomParser::str_get_html($this->markup);
             foreach (array_unique($html->find('a')) as $link) {
                 if ($link->rel !== 'nofollow') {
-                    $link = $link->href;
-                    $linkInfo = parse_url($link);
-                    if ((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !$linkInfo['username'] && !$linkInfo['password']) {
-                        $linkExt = explode('.', $linkInfo['path']);
-                        if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
-                            $fullLink = '';
-                            if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
-                            elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
+                    $this->addLinktoArray(parse_url($link->href), $link->href);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Adds the link to the attribute array
+     * @param array $linkInfo This should be the link information array
+     */
+    protected function addLinktoArray($linkInfo, $link){
+        if ((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !$linkInfo['username'] && !$linkInfo['password']) {
+            $linkExt = explode('.', $linkInfo['path']);
+            if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
+                $fullLink = '';
+                if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
+                elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
 
-                            if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
-                            if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
-                            if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
-                                $fullLink .= $link;
-                                $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
-                                if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
-                                    $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
-                                    $this->links[$EndLink]['visited'] = ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) ? 1 : 0;
-                                }
-                            }
-                        }
+                if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
+                if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
+                if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
+                    $fullLink .= $link;
+                    $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
+                    if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
+                        $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
+                        $this->links[$EndLink]['visited'] = ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) ? 1 : 0;
                     }
                 }
             }
