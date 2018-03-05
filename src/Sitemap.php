@@ -198,27 +198,46 @@ class Sitemap {
                 $pass = (in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png')) ? false : true);
             }
             if ($pass === true) {
-                $fullLink = '';
-                if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
-                elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
-
-                if (!isset($linkInfo['scheme'])) {$fullLink .= $this->host['scheme'].'://'; }
-                if (!isset($linkInfo['host'])) {$fullLink .= $this->host['host']; }
-                $fragment = (isset($linkInfo['fragment']) ? '#'.$linkInfo['fragment'] : '');
-                if (str_replace($fragment, '', $link) !== '/') {
-                    $fullLink .= $link;
-                    $EndLink = str_replace($fragment, '', $fullLink);
-                    if (!isset($this->links[$EndLink]) || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
-                        $this->links[$EndLink] = array(
-                            'level' => ($level > 5 ? 5 : $level),
-                            'visited' => ($this->url == $EndLink ? 1 : isset($this->links[$EndLink]) ? ($this->links[$EndLink]['visited'] == 1 ? 1 : 0) : 0)
-                        );
-                    }
-                }
+                $this->addLink($linkInfo, $link, $level);
             }
         }
     }
     
+    /**
+     * Returns the full link path
+     * @param array $linkInfo This should be all of the link information
+     * @param string $path This should be the link path
+     * @return string The full URI will be returned
+     */
+    protected function linkPath($linkInfo, $path){
+        $fullLink = '';
+        if (!isset($linkInfo['scheme'])) {$fullLink .= $this->host['scheme'].'://'; }
+        if (!isset($linkInfo['host'])) {$fullLink .= $this->host['host']; }
+        
+        if (!$linkInfo['path'] && $linkInfo['query']) {return $fullLink.$this->host['path'].$path; }
+        elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {return $fullLink.'/'.$path; }
+        return $fullLink.$path;
+    }
+    
+    /**
+     * Add the link to the attribute array
+     * @param array $linkInfo This should be all of the link information
+     * @param string $link This should be the link path
+     * @param int $level This should be the link level
+     */
+    protected function addLink($linkInfo, $link, $level = 1){
+        $fragment = (isset($linkInfo['fragment']) ? '#'.$linkInfo['fragment'] : '');
+        if (str_replace($fragment, '', $link) !== '/') {
+            $EndLink = str_replace($fragment, '', $this->linkPath($linkInfo, $link));
+            if (!isset($this->links[$EndLink]) || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
+                $this->links[$EndLink] = array(
+                    'level' => ($level > 5 ? 5 : $level),
+                    'visited' => ($this->url == $EndLink ? 1 : isset($this->links[$EndLink]) ? ($this->links[$EndLink]['visited'] == 1 ? 1 : 0) : 0)
+                );
+            }
+        }
+    }
+
     /**
      * Creates the formatted string for the sitemap with the correct information in
      * @param string $url The full URL of the page
