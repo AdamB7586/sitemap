@@ -19,6 +19,7 @@ class SitemapTest extends TestCase{
     /**
      * @covers Sitemap\Sitemap::__construct
      * @covers Sitemap\Sitemap::setDomain
+     * @covers Sitemap\Sitemap::getDomain
      * @covers Sitemap\Sitemap::getMarkup
      * @covers Sitemap\Sitemap::getImages
      * @covers Sitemap\Sitemap::getLinks
@@ -27,22 +28,43 @@ class SitemapTest extends TestCase{
      * @covers Sitemap\Sitemap::setFilePath
      */
     public function testSetDomain() {
+        $this->assertObjectHasAttribute('url', $this->sitemap->setDomain('https://www.google.co.uk/'));
+        $this->assertEquals('https://www.google.co.uk/', $this->sitemap->getDomain());
         $this->assertObjectHasAttribute('url', $this->sitemap->setDomain('http://www.example.com/'));
+        $this->assertEquals('http://www.example.com/', $this->sitemap->getDomain());
     }
     
-    public function testGetDomain() {
-        $this->markTestIncomplete();
-    }
-    
+    /**
+     * @covers Sitemap\Sitemap::__construct
+     * @covers Sitemap\Sitemap::setFilePath
+     * @covers Sitemap\Sitemap::getFilePath
+     */
     public function testSetFilePath() {
-        $this->markTestIncomplete();
+        $this->assertObjectHasAttribute('url', $this->sitemap->setFilePath(dirname(__FILE__)));
+        $this->assertEquals(dirname(__FILE__), $this->sitemap->getFilePath());
+        $this->assertObjectHasAttribute('url', $this->sitemap->setFilePath(158774));
+        $this->assertEquals(dirname(__FILE__), $this->sitemap->getFilePath());
     }
     
-    public function testGetFilePath() {
-        $this->markTestIncomplete();
-    }
-    
+    /**
+     * @covers Sitemap\Sitemap::__construct
+     * @covers Sitemap\Sitemap::setDomain
+     * @covers Sitemap\Sitemap::getMarkup
+     * @covers Sitemap\Sitemap::getImages
+     * @covers Sitemap\Sitemap::getLinks
+     * @covers Sitemap\Sitemap::addLinktoArray
+     * @covers Sitemap\Sitemap::getAssets
+     * @covers Sitemap\Sitemap::setFilePath
+     * @covers Sitemap\Sitemap::parseSite
+     * @covers Sitemap\Sitemap::imageXML
+     * @covers Sitemap\Sitemap::videoXML
+     * @covers Sitemap\Sitemap::urlXML
+     * @covers Sitemap\Sitemap::copyXMLStyle
+     * @covers Sitemap\Sitemap::getFilePath
+     */
     public function testCreateSitemap() {
-        $this->markTestIncomplete();
+        $this->sitemap->setDomain('http://www.example.com/');
+        $this->assertTrue($this->sitemap->createSitemap(true, 1));
+        //$this->assertXmlFileEqualsXmlFile($expectedFile, file_get_contents($filename));
     }
 }

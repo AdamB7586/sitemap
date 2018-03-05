@@ -60,7 +60,9 @@ class Sitemap {
      * @return $this
      */
     public function setFilePath($path) {
-        $this->filepath = $path;
+        if(is_string($path) && is_dir($path)){
+            $this->filepath = $path;
+        }
         return $this;
     }
     
@@ -177,7 +179,7 @@ class Sitemap {
             $html = HtmlDomParser::str_get_html($this->markup);
             foreach (array_unique($html->find('a')) as $link) {
                 if ($link->rel !== 'nofollow') {
-                    $this->addLinktoArray(parse_url($link->href), $link->href);
+                    $this->addLinktoArray(parse_url($link->href), $link->href, $level);
                 }
             }
         }
@@ -187,8 +189,8 @@ class Sitemap {
      * Adds the link to the attribute array
      * @param array $linkInfo This should be the link information array
      */
-    protected function addLinktoArray($linkInfo, $link){
-        if ((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !$linkInfo['username'] && !$linkInfo['password']) {
+    protected function addLinktoArray($linkInfo, $link, $level = 1){
+        if ((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password'])) {
             $linkExt = explode('.', $linkInfo['path']);
             if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
                 $fullLink = '';
