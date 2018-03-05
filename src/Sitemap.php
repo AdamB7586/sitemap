@@ -162,9 +162,9 @@ class Sitemap {
      */
     protected function buildLink($linkInfo, $src) {
         $fullLink = ''; 
-        if (!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) {
-            if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
-            if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
+        if (!isset($linkInfo['scheme']) || $this->host['host'] == $linkInfo['host']) {
+            if (!isset($linkInfo['scheme'])) {$fullLink .= $this->host['scheme'].'://'; }
+            if (!isset($linkInfo['host'])) {$fullLink .= $this->host['host']; }
             $fullLink .= $src;
         }
         return $fullLink;
@@ -309,7 +309,7 @@ class Sitemap {
      * @return boolean If the style is successfully created will return true else returns false
      */
     protected function copyXMLStyle() {
-        $style = file_get_contents(realpath(dirname(__FILE__)).'\style.xsl');
-        return file_put_contents($this->getFilePath().'\style.xsl', $style) !== false ? true : false;
+        $style = file_get_contents(realpath(dirname(__FILE__)).'/style.xsl');
+        return file_put_contents($this->getFilePath().'/style.xsl', $style) !== false ? true : false;
     }
 }

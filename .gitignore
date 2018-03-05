@@ -3,3 +3,5 @@
 .gitignore
 composer.lock
 clover.xml
+/tests/sitemap.xml
+/tests/style.xsl
