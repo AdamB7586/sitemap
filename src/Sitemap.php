@@ -191,23 +191,28 @@ class Sitemap {
      * @param array $linkInfo This should be the link information array
      */
     protected function addLinktoArray($linkInfo, $link, $level = 1){
-        if ((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password'])) {
+        if ((!isset($linkInfo['scheme']) || $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password'])) {
             $linkExt = explode('.', $linkInfo['path']);
-            if (is_array($linkExt)) {
-                if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
-                    $fullLink = '';
-                    if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
-                    elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
+            $pass = true;
+            if(isset($linkExt[1])){
+                $pass = (in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png')) ? false : true);
+            }
+            if ($pass === true) {
+                $fullLink = '';
+                if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
+                elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
 
-                    if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
-                    if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
-                    if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
-                        $fullLink .= $link;
-                        $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
-                        if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
-                            $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
-                            $this->links[$EndLink]['visited'] = ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) ? 1 : 0;
-                        }
+                if (!isset($linkInfo['scheme'])) {$fullLink .= $this->host['scheme'].'://'; }
+                if (!isset($linkInfo['host'])) {$fullLink .= $this->host['host']; }
+                $fragment = (isset($linkInfo['fragment']) ? '#'.$linkInfo['fragment'] : '');
+                if (str_replace($fragment, '', $link) !== '/') {
+                    $fullLink .= $link;
+                    $EndLink = str_replace($fragment, '', $fullLink);
+                    if (!isset($this->links[$EndLink]) || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
+                        $this->links[$EndLink] = array(
+                            'level' => ($level > 5 ? 5 : $level),
+                            'visited' => ($this->url == $EndLink ? 1 : isset($this->links[$EndLink]) ? ($this->links[$EndLink]['visited'] == 1 ? 1 : 0) : 0)
+                        );
                     }
                 }
             }
@@ -292,7 +297,7 @@ class Sitemap {
                     $videos .= $this->videoXML($vidInfo['src'], $vidInfo['title'], $vidInfo['description'], $vidInfo['thumbnail']);
                 }
             }
-            $sitemap .= $this->urlXML($url, $this->priority[$info['level']], $this->frequency[$info['level']], date('c'), $images.$videos);
+            $sitemap .= $this->urlXML($url, (isset($info['level']) ? $this->priority[$info['level']] : 1), (isset($info['level']) ? $this->frequency[$info['level']] : 'weekly'), date('c'), $images.$videos);
         }
         $sitemap .= '</urlset>';
         if($includeStyle === true) {$this->copyXMLStyle();}
@@ -304,7 +309,7 @@ class Sitemap {
      * @return boolean If the style is successfully created will return true else returns false
      */
     protected function copyXMLStyle() {
-        $style = file_get_contents(realpath(dirname(__FILE__)).'style.xsl');
-        return file_put_contents($this->getFilePath().'style.xsl', $style) !== false ? true : false;
+        $style = file_get_contents(realpath(dirname(__FILE__)).'\style.xsl');
+        return file_put_contents($this->getFilePath().'\style.xsl', $style) !== false ? true : false;
     }
 }
