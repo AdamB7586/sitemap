@@ -178,8 +178,9 @@ class Sitemap {
         if (!empty($this->markup)) {
             $html = HtmlDomParser::str_get_html($this->markup);
             foreach (array_unique($html->find('a')) as $link) {
-                if ($link->rel !== 'nofollow') {
-                    $this->addLinktoArray(parse_url($link->href), $link->href, $level);
+                $linkInfo = parse_url($link->href);
+                if ($link->rel !== 'nofollow' && is_array($linkInfo)) {
+                    $this->addLinktoArray($linkInfo, $link->href, $level);
                 }
             }
         }
@@ -192,19 +193,21 @@ class Sitemap {
     protected function addLinktoArray($linkInfo, $link, $level = 1){
         if ((!$linkInfo['scheme'] || $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password'])) {
             $linkExt = explode('.', $linkInfo['path']);
-            if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
-                $fullLink = '';
-                if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
-                elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
+            if (is_array($linkExt)) {
+                if (!in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png'))) {
+                    $fullLink = '';
+                    if (!$linkInfo['path'] && $linkInfo['query']) {$link = $this->host['path'].$link; }
+                    elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {$link = '/'.$link; }
 
-                if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
-                if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
-                if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
-                    $fullLink .= $link;
-                    $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
-                    if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
-                        $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
-                        $this->links[$EndLink]['visited'] = ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) ? 1 : 0;
+                    if (!$linkInfo['scheme']) {$fullLink .= $this->host['scheme'].'://'; }
+                    if (!$linkInfo['host']) {$fullLink .= $this->host['host']; }
+                    if (str_replace('#'.$linkInfo['fragment'], '', $link) !== '/') {
+                        $fullLink .= $link;
+                        $EndLink = str_replace('#'.$linkInfo['fragment'], '', $fullLink);
+                        if (!$this->links[$EndLink] || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
+                            $this->links[$EndLink]['level'] = ($level > 5 ? 5 : $level);
+                            $this->links[$EndLink]['visited'] = ($this->url == $EndLink || $this->links[$EndLink]['visited'] == 1) ? 1 : 0;
+                        }
                     }
                 }
             }
