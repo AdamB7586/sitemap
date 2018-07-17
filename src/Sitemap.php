@@ -103,7 +103,7 @@ class Sitemap {
         $this->host = parse_url($this->url);
         $this->links[$uri]['visited'] = 1;
         
-        $responce = $this->guzzle->request('GET', $uri);
+        $responce = $this->guzzle->request('GET', $uri, ['http_errors' => false, 'track_redirects' => true]);
         $this->markup = $responce->getBody();
         if ($responce->getStatusCode() === 200) {
             $html = HtmlDomParser::str_get_html($this->markup);
