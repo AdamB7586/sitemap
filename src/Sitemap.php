@@ -19,6 +19,8 @@ class Sitemap {
     public $markup = '';
     public $contentID = 'content';
     
+    protected $ignoreURLContaining = [];
+
     protected $priority = array(0 => '1', 1 => '0.8', 2 => '0.6', 3 => '0.4', 4 => '0.2', 5 => '0.1');
     protected $frequency = array(0 => 'weekly', 1 => 'weekly', 2 => 'monthly', 3 => 'monthly', 4 => 'monthly', 5 => 'yearly');
     
@@ -72,6 +74,29 @@ class Sitemap {
      */
     public function getFilePath() {
         return $this->filepath;
+    }
+    
+    /**
+     * Add a string or array of strings to ignore any URL containing the added item(s)
+     * @param straing|array $ignore The item or array of items that you want to ignore any URL containing
+     * @return $this
+     */
+    public function addURLItemstoIgnore($ignore) {
+        if(is_array($ignore)) {
+            $this->ignoreURLContaining = array_unique(array_push($this->ignoreURLContaining, $ignore));
+        }
+        elseif(is_string($ignore)){
+            $this->ignoreURLContaining = array_unique(array_push($this->ignoreURLContaining, [$ignore]));
+        }
+        return $this;
+    }
+    
+    /**
+     * Returns an array of the strings to ignore in the links
+     * @return array Returns an array of items to ignore link containing the values
+     */
+    public function getURLItemsToIgnore(){
+        return $this->ignoreURLContaining;
     }
     
     /**
@@ -191,7 +216,7 @@ class Sitemap {
      * @param array $linkInfo This should be the link information array
      */
     protected function addLinktoArray($linkInfo, $link, $level = 1){
-        if ((!isset($linkInfo['scheme']) || $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password'])) {
+        if ((!isset($linkInfo['scheme']) || $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password']) && !$this->checkForIgnoredStrings($link)) {
             $linkExt = explode('.', $linkInfo['path']);
             $pass = true;
             if(isset($linkExt[1])){
@@ -330,5 +355,19 @@ class Sitemap {
     protected function copyXMLStyle() {
         $style = file_get_contents(realpath(dirname(__FILE__)).'/style.xsl');
         return file_put_contents($this->getFilePath().'/style.xsl', $style) !== false ? true : false;
+    }
+    
+    /**
+     * Checks to see if the link contains any of the values set to be ignored
+     * @param string $link This should be the link you are checking for ignored strings
+     * @return boolean If contains blocked elements returns true else returns false
+     */
+    protected function checkForIgnoredStrings($link){
+        if(is_array($this->getURLItemsToIgnore()) && !empty($this->getURLItemsToIgnore())) {
+            foreach($this->getURLItemsToIgnore() as $string){
+                 if(strpos($link, $string) !== false){return true;}
+            }
+        }
+        return true;
     }
 }
