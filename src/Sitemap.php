@@ -2,7 +2,7 @@
 
 namespace Sitemap;
 
-use Sunra\PhpSimple\HtmlDomParser;
+use KubAT\PhpSimple\HtmlDomParser;
 use GuzzleHttp\Client;
 
 class Sitemap {
