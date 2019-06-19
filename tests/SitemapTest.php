@@ -8,11 +8,11 @@ use Sitemap\Sitemap;
 class SitemapTest extends TestCase{
     public $sitemap;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->sitemap = new Sitemap();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->sitemap = null;
     }
     
