@@ -21,8 +21,8 @@ class Sitemap {
     
     protected $ignoreURLContaining = [];
 
-    protected $priority = array(0 => '1', 1 => '0.8', 2 => '0.6', 3 => '0.4', 4 => '0.2', 5 => '0.1');
-    protected $frequency = array(0 => 'weekly', 1 => 'weekly', 2 => 'monthly', 3 => 'monthly', 4 => 'monthly', 5 => 'yearly');
+    protected $priority = [0 => '1', 1 => '0.8', 2 => '0.6', 3 => '0.4', 4 => '0.2', 5 => '0.1'];
+    protected $frequency = [0 => 'weekly', 1 => 'weekly', 2 => 'monthly', 3 => 'monthly', 4 => 'monthly', 5 => 'yearly'];
     
     /**
      * Crawl the homepage and get all of the links for that page
