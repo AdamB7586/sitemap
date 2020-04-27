@@ -1,0 +1,9 @@
+<video:video>
+<video:thumbnail_loc>%s</video:thumbnail_loc>
+<video:title>%s</video:title>
+<video:description>%s</video:description>
+<video:content_loc>%s</video:content_loc>
+<video:duration>%s</video:duration>
+<video:family_friendly>%s</video:family_friendly>
+<video:live>%s</video:live>
+</video:video>

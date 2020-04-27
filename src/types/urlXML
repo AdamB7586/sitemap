@@ -1,0 +1,6 @@
+<url>
+<loc>%s</loc>
+<lastmod>%s</lastmod>
+<changefreq>%s</changefreq>
+<priority>%s</priority>%s
+</url>

@@ -8,7 +8,9 @@ use GuzzleHttp\Client;
 class Sitemap {
     protected $guzzle;
     
-    public $filepath;
+    protected $filePath;
+    protected $layoutPath;
+
     public $url;
     public $host;
     public $domain;
@@ -33,7 +35,8 @@ class Sitemap {
         if($uri !== NULL) {
             $this->setDomain($uri);
         }
-        $this->setFilePath($_SERVER['DOCUMENT_ROOT']);
+        $this->setFilePath($_SERVER['DOCUMENT_ROOT'].'/')
+             ->setXMLLayoutPath(realpath(dirname(__FILE__)).'/types/');
     }
     
     /**
@@ -63,7 +66,7 @@ class Sitemap {
      */
     public function setFilePath($path) {
         if(is_string($path) && is_dir($path)){
-            $this->filepath = $path;
+            $this->filePath = $path;
         }
         return $this;
     }
@@ -73,7 +76,27 @@ class Sitemap {
      * @return string This will be the absolute path where files are created
      */
     public function getFilePath() {
-        return $this->filepath;
+        return $this->filePath;
+    }
+    
+    /**
+     * Set the path the the XML layout files
+     * @param string $path Should be the path the the XML template files
+     * @return $this
+     */
+    public function setXMLLayoutPath($path){
+        if(is_string($path) && is_dir($path)){
+            $this->layoutPath = $path;
+        }
+        return $this;
+    }
+    
+    /**
+     * Returns the path to the XML template files
+     * @return string
+     */
+    public function getXMLLayoutPath(){
+        return $this->layoutPath;
     }
     
     /**
@@ -236,11 +259,11 @@ class Sitemap {
      */
     protected function linkPath($linkInfo, $path){
         $fullLink = '';
-        if (!isset($linkInfo['scheme'])) {$fullLink .= $this->host['scheme'].'://'; }
-        if (!isset($linkInfo['host'])) {$fullLink .= $this->host['host']; }
+        if(!isset($linkInfo['scheme'])) {$fullLink .= $this->host['scheme'].'://'; }
+        if(!isset($linkInfo['host'])) {$fullLink .= $this->host['host']; }
         
-        if (!$linkInfo['path'] && $linkInfo['query']) {return $fullLink.$this->host['path'].$path; }
-        elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {return $fullLink.'/'.$path; }
+        if(!$linkInfo['path'] && $linkInfo['query']) {return $fullLink.$this->host['path'].$path;}
+        elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {return $fullLink.'/'.$path;}
         return $fullLink.$path;
     }
     
@@ -273,13 +296,10 @@ class Sitemap {
      * @return string Returns the sitemap information as a formatted string
      */
     private function urlXML($url, $priority = '0.8', $freq = 'monthly', $modified = '', $additional = '') {
-        return '<url>
-<loc>'.$url.'</loc>
-<lastmod>'.(empty($modified) ? date('c') : $modified).'</lastmod>
-<changefreq>'.$freq.'</changefreq>
-<priority>'.$priority.'</priority>'.$additional.'
-</url>
-';
+        $urlXML = $this->getLayoutFile('urlXML');
+        if($urlXML !== false){
+            return sprintf($urlXML, $url, (empty($modified) ? date('c') : $modified), $freq, $priority, $additional);
+        }
     }
     
     /**
@@ -288,11 +308,15 @@ class Sitemap {
      * @param string $caption The caption to give the image in the sitemap
      * @return string Return the formatted string for the image section of the sitemap
      */
-    private function imageXML($src, $caption) {
-        return '<image:image>
-<image:loc>'.$src.'</image:loc>
-<image:caption>'.htmlentities($caption).'</image:caption>
-</image:image>';
+    private function imageXML($images) {
+        $imageString = false;
+        $imageXML = $this->getLayoutFile('imageXML');
+        if($imageXML !== false && is_array($images) && !empty($images)){
+            foreach ($images as $imgInfo) {
+                $imageString.= sprintf($imageXML, $imgInfo['src'], htmlentities($imgInfo['alt']));
+            }
+        }
+        return $imageString;
     }
     
     /**
@@ -306,16 +330,15 @@ class Sitemap {
      * @param string $live Is it a live stream yes/no
      * @return string Returns the video sitemap formatted string
      */
-    private function videoXML($location, $title, $description, $thumbnailLoc, $duration = '', $friendly = 'yes', $live = 'no') {
-        return '<video:video>
-<video:thumbnail_loc>'.$thumbnailLoc.'</video:thumbnail_loc>
-<video:title>'.$title.'</video:title>
-<video:description>'.$description.'</video:description>
-<video:content_loc>'.$location.'</video:content_loc>
-<video:duration>'.$duration.'</video:duration>
-<video:family_friendly>'.$friendly.'</video:family_friendly>
-<video:live>'.$live.'</video:live>
-</video:video>';
+    private function videoXML($videos) {
+        $videoString = false;
+        $videoXML = $this->getLayoutFile('videoXML');
+        if($videoXML !== false && is_array($videos) && !empty($videos)){
+            foreach ($videos as $vidInfo) {
+                $videoString.= sprintf($videoXML, $vidInfo['thumbnail'], $vidInfo['title'], $vidInfo['description'], $vidInfo['src'], '', 'yes', 'no');
+            }
+        }
+        return $videoString;
     }
     
     /**
@@ -326,26 +349,18 @@ class Sitemap {
      * @return boolean Returns true if successful else returns false on failure
      */
     public function createSitemap($includeStyle = true, $maxLevels = 5, $filename = 'sitemap') {
-        $sitemap = '<?xml version="1.0" encoding="UTF-8"?>'.($includeStyle === true ? '<?xml-stylesheet type="text/xsl" href="style.xsl"?>' : '').'<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        foreach ($this->parseSite($maxLevels) as $url => $info) {            
-            $images = '';
-            if (!empty($info['images'])) {
-                foreach ($info['images'] as $imgInfo) {
-                    $images .= $this->imageXML($imgInfo['src'], $imgInfo['alt']);
-                }
-            }
-            
-            $videos = '';
-            if (!empty($info['videos'])) {
-                foreach ($info['videos'] as $vidInfo) {
-                    $videos .= $this->videoXML($vidInfo['src'], $vidInfo['title'], $vidInfo['description'], $vidInfo['thumbnail']);
-                }
-            }
-            $sitemap .= $this->urlXML($url, (isset($info['level']) ? $this->priority[$info['level']] : 1), (isset($info['level']) ? $this->frequency[$info['level']] : 'weekly'), date('c'), $images.$videos);
+        foreach ($this->parseSite($maxLevels) as $url => $info) {
+            $assets = $this->urlXML($url, (isset($info['level']) ? $this->priority[$info['level']] : 1), (isset($info['level']) ? $this->frequency[$info['level']] : 'weekly'), date('c'), $this->imageXML($info['images']).$this->getVideos($info['videos']));
         }
-        $sitemap .= '</urlset>';
+        $sitemapXML = $this->getLayoutFile('sitemapXML');
+        if($sitemapXML !== false){
+            $sitemap = sprintf($sitemapXML, ($includeStyle === true ? '<?xml-stylesheet type="text/xsl" href="style.xsl"?>' : ''), $assets);
+        }
         if($includeStyle === true) {$this->copyXMLStyle();}
-        return file_put_contents($this->getFilePath().strtolower($filename).'.xml', $sitemap) !== false ? true : false;
+        if(strlen($sitemap) > 1){
+            return file_put_contents($this->getFilePath().strtolower($filename).'.xml', $sitemap) !== false ? true : false;
+        }
+        return false;
     }
     
     /**
@@ -354,7 +369,7 @@ class Sitemap {
      */
     protected function copyXMLStyle() {
         $style = file_get_contents(realpath(dirname(__FILE__)).'/style.xsl');
-        return file_put_contents($this->getFilePath().'/style.xsl', $style) !== false ? true : false;
+        return file_put_contents($this->getFilePath().'style.xsl', $style) !== false ? true : false;
     }
     
     /**
@@ -369,5 +384,17 @@ class Sitemap {
             }
         }
         return true;
+    }
+    
+    /**
+     * Get the contents of a file to use for the layout
+     * @param string $file This should be the file name
+     * @return string|boolean if file exists will return the file contents else returns false
+     */
+    protected function getLayoutFile($file){
+        if(file_exists($this->getXMLLayoutPath().$file)){
+            return file_get_contents($this->getXMLLayoutPath().$file);
+        }
+        return false;
     }
 }
