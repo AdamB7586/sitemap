@@ -1,7 +1,7 @@
 /nbproject/
 /vendor/
 .gitignore
-composer.lock
+*.lock
 clover.xml
 /tests/sitemap.xml
 /tests/style.xsl

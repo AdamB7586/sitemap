@@ -14,7 +14,8 @@ class Sitemap {
     public $url;
     public $host;
     public $domain;
-    public $links;
+    public $paths = [];
+    public $links = [];
     public $images;
     public $videos;
     
@@ -187,19 +188,21 @@ class Sitemap {
      * @return array|boolean If the page has assets which are not previously included in the sitemap an array will be return else returns false
      */
     protected function getAssets($htmlInfo, $tag = 'img', $global = 'images') {
-        $item = array();
+        $item = [];
         $html = HtmlDomParser::str_get_html($htmlInfo);
-        foreach ($html->find($tag) as $i => $assets) {
+        $find = $html->find($tag);
+        
+        foreach ($find as $i => $assets) {
             $linkInfo = parse_url($assets->src);
             $fullLink = $this->buildLink($linkInfo, $assets->src);
-            if (!empty($fullLink) && !$this->$global[$fullLink]) {
+            if (isset($fullLink) && !empty($fullLink) && !isset($this->$global[$fullLink])) {
                 $this->$global[$fullLink] = $fullLink;
                 $item[$i]['src'] = $fullLink;
                 $item[$i]['alt'] = $assets->alt;
                 $i++;
             }
         }
-        return isset($item[0]['src']) ? $item : false;
+        return (isset($item[0]['src']) ? $item : false);
     }
     
     /**
@@ -226,8 +229,8 @@ class Sitemap {
         if (!empty($this->markup)) {
             $html = HtmlDomParser::str_get_html($this->markup);
             foreach (array_unique($html->find('a')) as $link) {
-                $linkInfo = parse_url($link->href);
-                if ($link->rel !== 'nofollow' && is_array($linkInfo)) {
+                $linkInfo = array_filter(parse_url($link->href));
+                if (strpos($link->rel, 'nofollow') === false && is_array($linkInfo) && !empty($linkInfo)) {
                     $this->addLinktoArray($linkInfo, $link->href, $level);
                 }
             }
@@ -239,11 +242,12 @@ class Sitemap {
      * @param array $linkInfo This should be the link information array
      */
     protected function addLinktoArray($linkInfo, $link, $level = 1){
-        if ((!isset($linkInfo['scheme']) || $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password']) && !$this->checkForIgnoredStrings($link)) {
-            $linkExt = explode('.', $linkInfo['path']);
+        if ((!isset($linkInfo['host']) || isset($linkInfo['host']) && $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password']) && isset($linkInfo['path']) && !isset($this->paths[$linkInfo['path']]) && !$this->checkForIgnoredStrings($link)) {
+            $this->paths[$linkInfo['path']] = true;
+            $linkExt = (isset($linkInfo['path']) ? explode('.', $linkInfo['path']) : false);
             $pass = true;
             if(isset($linkExt[1])){
-                $pass = (in_array(strtolower($linkExt[1]), array('jpg', 'jpeg', 'gif', 'png')) ? false : true);
+                $pass = (in_array(strtolower($linkExt[1]), ['jpg', 'jpeg', 'gif', 'png']) ? false : true);
             }
             if ($pass === true) {
                 $this->addLink($linkInfo, $link, $level);
@@ -262,8 +266,8 @@ class Sitemap {
         if(!isset($linkInfo['scheme'])) {$fullLink .= $this->host['scheme'].'://'; }
         if(!isset($linkInfo['host'])) {$fullLink .= $this->host['host']; }
         
-        if(!$linkInfo['path'] && $linkInfo['query']) {return $fullLink.$this->host['path'].$path;}
-        elseif ($linkInfo['path'][0] != '/' && !$linkInfo['query']) {return $fullLink.'/'.$path;}
+        if(!isset($linkInfo['path']) && isset($linkInfo['query'])) {return $fullLink.$this->host['path'].$path;}
+        elseif(isset($linkInfo['path'][0]) && $linkInfo['path'][0] != '/' && !isset($linkInfo['query'])) {return $fullLink.'/'.$path;}
         return $fullLink.$path;
     }
     
@@ -280,7 +284,7 @@ class Sitemap {
             if (!isset($this->links[$EndLink]) || ($this->links[$EndLink]['visited'] == 0 && $this->url == $EndLink)) {
                 $this->links[$EndLink] = array(
                     'level' => ($level > 5 ? 5 : $level),
-                    'visited' => ($this->url == $EndLink ? 1 : isset($this->links[$EndLink]) ? ($this->links[$EndLink]['visited'] == 1 ? 1 : 0) : 0)
+                    'visited' => ($this->url == $EndLink ? 1 : (isset($this->links[$EndLink]) ? ($this->links[$EndLink]['visited'] == 1 ? 1 : 0) : 0))
                 );
             }
         }
@@ -298,7 +302,7 @@ class Sitemap {
     private function urlXML($url, $priority = '0.8', $freq = 'monthly', $modified = '', $additional = '') {
         $urlXML = $this->getLayoutFile('urlXML');
         if($urlXML !== false){
-            return sprintf($urlXML, $url, (empty($modified) ? date('c') : $modified), $freq, $priority, $additional);
+            return sprintf($urlXML, $url, ((empty($modified) ? date('c') : $modified)), $freq, $priority, $additional);
         }
     }
     
@@ -349,8 +353,9 @@ class Sitemap {
      * @return boolean Returns true if successful else returns false on failure
      */
     public function createSitemap($includeStyle = true, $maxLevels = 5, $filename = 'sitemap') {
+        $assets = '';
         foreach ($this->parseSite($maxLevels) as $url => $info) {
-            $assets = $this->urlXML($url, (isset($info['level']) ? $this->priority[$info['level']] : 1), (isset($info['level']) ? $this->frequency[$info['level']] : 'weekly'), date('c'), $this->imageXML($info['images']).$this->getVideos($info['videos']));
+            $assets.= $this->urlXML($url, (isset($info['level']) ? $this->priority[$info['level']] : 1), (isset($info['level']) ? $this->frequency[$info['level']] : 'weekly'), date('c'), (isset($info['images']) ? $this->imageXML($info['images']) : '').(isset($info['videos']) ? $this->videoXML($info['videos']) : ''));
         }
         $sitemapXML = $this->getLayoutFile('sitemapXML');
         if($sitemapXML !== false){
@@ -358,7 +363,7 @@ class Sitemap {
         }
         if($includeStyle === true) {$this->copyXMLStyle();}
         if(strlen($sitemap) > 1){
-            return file_put_contents($this->getFilePath().strtolower($filename).'.xml', $sitemap) !== false ? true : false;
+            return (file_put_contents($this->getFilePath().strtolower($filename).'.xml', $sitemap) !== false ? true : false);
         }
         return false;
     }
@@ -369,7 +374,7 @@ class Sitemap {
      */
     protected function copyXMLStyle() {
         $style = file_get_contents(realpath(dirname(__FILE__)).'/style.xsl');
-        return file_put_contents($this->getFilePath().'style.xsl', $style) !== false ? true : false;
+        return (file_put_contents($this->getFilePath().'style.xsl', $style) !== false ? true : false);
     }
     
     /**
@@ -383,7 +388,7 @@ class Sitemap {
                  if(strpos($link, $string) !== false){return true;}
             }
         }
-        return true;
+        return false;
     }
     
     /**

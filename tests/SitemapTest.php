@@ -70,8 +70,8 @@ class SitemapTest extends TestCase{
      * @covers Sitemap\Sitemap::getFilePath
      */
     public function testCreateSitemap() {
-        $this->sitemap->setDomain('http://www.example.com/')->setFilePath(dirname(__FILE__).'/');
+        $this->sitemap->setDomain('https://www.example.com/')->setFilePath(dirname(__FILE__).'/');
         $this->assertTrue($this->sitemap->createSitemap(true, 1));
-        $this->assertContains('<loc>http://www.example.com/</loc>', file_get_contents(dirname(__FILE__).'/sitemap.xml'));
+        $this->assertStringContainsString('<loc>https://www.example.com/</loc>', file_get_contents(dirname(__FILE__).'/sitemap.xml'));
     }
 }
