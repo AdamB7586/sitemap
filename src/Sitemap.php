@@ -22,6 +22,8 @@ class Sitemap {
     public $markup = '';
     public $contentID = 'content';
     
+    public $html;
+    
     protected $ignoreURLContaining = [];
 
     protected $priority = [0 => '1', 1 => '0.8', 2 => '0.6', 3 => '0.4', 4 => '0.2', 5 => '0.1'];
@@ -155,54 +157,54 @@ class Sitemap {
         $responce = $this->guzzle->request('GET', $uri, ['http_errors' => false, 'track_redirects' => true]);
         $this->markup = $responce->getBody();
         if ($responce->getStatusCode() === 200) {
-            $html = HtmlDomParser::str_get_html($this->markup);
-            $this->links[$uri]['markup'] = $html;
-            $this->links[$uri]['images'] = $this->getImages($html);
+            $this->html = HtmlDomParser::str_get_html($this->markup);
+            $this->links[$uri]['markup'] = $this->html;
+            $this->links[$uri]['images'] = $this->getImages();
         }
         else {$this->links[$uri]['error'] = $responce->getStatusCode(); }
     }
     
     /**
      * Get all of the images within the HTML
-     * @param string $htmlInfo This should be the HTML you wish to get the images from
      * @return array|boolean If the page has images which are not previously included in the sitemap an array will be return else returns false
      */
-    protected function getImages($htmlInfo) {
-        return $this->getAssets($htmlInfo);
+    protected function getImages() {
+        return $this->getAssets();
     }
     
     /**
      * Get all of the videos which are in the HTML
-     * @param string $htmlInfo This should be the HTML you wish to get the videos from
      * @return array|boolean If the page has videos which are not previously included in the sitemap an array will be return else returns false
      */
-    protected function getVideos($htmlInfo) {
-        return $this->getAssets($htmlInfo, 'video', 'videos');
+    protected function getVideos() {
+        return $this->getAssets('video', 'videos');
     }
     
     /**
      * Get all of the assets based on the given variables from within the HTML
-     * @param string $htmlInfo This should be the HTML you wish to get the assets from
      * @param string $tag This should be the tag you wish to search for in the HTML
      * @param string $global This should be the name of the variable where the assets are stores to see if the assets already exists 
      * @return array|boolean If the page has assets which are not previously included in the sitemap an array will be return else returns false
      */
-    protected function getAssets($htmlInfo, $tag = 'img', $global = 'images') {
+    protected function getAssets($tag = 'img', $global = 'images') {
         $item = [];
-        $html = HtmlDomParser::str_get_html($htmlInfo);
-        $find = $html->find($tag);
-        
-        foreach ($find as $i => $assets) {
-            $linkInfo = parse_url($assets->src);
-            $fullLink = $this->buildLink($linkInfo, $assets->src);
-            if (isset($fullLink) && !empty($fullLink) && !isset($this->$global[$fullLink])) {
-                $this->$global[$fullLink] = $fullLink;
-                $item[$i]['src'] = $fullLink;
-                $item[$i]['alt'] = $assets->alt;
-                $i++;
+        if(is_object($this->html)){
+            $find = $this->html->find($tag);
+            
+            if(is_array($find)){
+                foreach ($find as $i => $assets) {
+                    $linkInfo = parse_url($assets->src);
+                    $fullLink = $this->buildLink($linkInfo, $assets->src);
+                    if (isset($fullLink) && !empty($fullLink) && !isset($this->{$global}[$fullLink])) {
+                        $this->{$global}[$fullLink] = $fullLink;
+                        $item[$i]['src'] = $fullLink;
+                        $item[$i]['alt'] = $assets->alt;
+                        $i++;
+                    }
+                }
             }
         }
-        return (isset($item[0]['src']) ? $item : false);
+        return (!empty($item) ? array_values($item) : false);
     }
     
     /**
@@ -226,9 +228,8 @@ class Sitemap {
      * @param int $level This should be the maximum number of levels to crawl for the website
      */
     protected function getLinks($level = 1) {
-        if (!empty($this->markup)) {
-            $html = HtmlDomParser::str_get_html($this->markup);
-            foreach (array_unique($html->find('a')) as $link) {
+        if (!empty($this->markup) && is_object($this->html)) {
+            foreach (array_unique($this->html->find('a')) as $link) {
                 $linkInfo = array_filter(parse_url($link->href));
                 if (strpos($link->rel, 'nofollow') === false && is_array($linkInfo) && !empty($linkInfo)) {
                     $this->addLinktoArray($linkInfo, $link->href, $level);
@@ -242,7 +243,7 @@ class Sitemap {
      * @param array $linkInfo This should be the link information array
      */
     protected function addLinktoArray($linkInfo, $link, $level = 1){
-        if ((!isset($linkInfo['host']) || isset($linkInfo['host']) && $this->host['host'] == $linkInfo['host']) && !isset($linkInfo['username']) && !isset($linkInfo['password']) && isset($linkInfo['path']) && !isset($this->paths[$linkInfo['path']]) && !$this->checkForIgnoredStrings($link)) {
+        if ((!isset($linkInfo['host']) || (isset($linkInfo['host']) && isset($this->host['host']) && $this->host['host'] == $linkInfo['host'])) && !isset($linkInfo['username']) && !isset($linkInfo['password']) && isset($linkInfo['path']) && !isset($this->paths[$linkInfo['path']]) && !$this->checkForIgnoredStrings($link)) {
             $this->paths[$linkInfo['path']] = true;
             $linkExt = (isset($linkInfo['path']) ? explode('.', $linkInfo['path']) : false);
             $pass = true;
