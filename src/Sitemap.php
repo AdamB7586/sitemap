@@ -48,8 +48,6 @@ class Sitemap {
      * @return $this Returns $this for method chaining 
      */
     public function setDomain($uri) {
-        $this->getMarkup($uri);
-        $this->getLinks(1);
         $this->domain = $uri;
         return $this;
     }
@@ -108,12 +106,8 @@ class Sitemap {
      * @return $this
      */
     public function addURLItemstoIgnore($ignore) {
-        if(is_array($ignore)) {
-            $this->ignoreURLContaining = array_unique(array_push($this->ignoreURLContaining, $ignore));
-        }
-        elseif(is_string($ignore)){
-            $this->ignoreURLContaining = array_unique(array_push($this->ignoreURLContaining, [$ignore]));
-        }
+        $this->ignoreURLContaining = array_merge($this->getURLItemsToIgnore(), (is_array($ignore) ? $ignore : [$ignore]));
+        $this->ignoreURLContaining = array_unique($this->ignoreURLContaining);
         return $this;
     }
     
@@ -131,6 +125,8 @@ class Sitemap {
      * @return array And array is return with all of the site pages and information
      */
     protected function parseSite($maxlevels = 5) {
+        $this->getMarkup($this->getDomain());
+        $this->getLinks(1);
         $level = 2;
         for ($i = 1; $i <= $maxlevels; $i++) {
             foreach ($this->links as $link => $info) {
@@ -385,7 +381,7 @@ class Sitemap {
      */
     protected function checkForIgnoredStrings($link){
         if(is_array($this->getURLItemsToIgnore()) && !empty($this->getURLItemsToIgnore())) {
-            foreach($this->getURLItemsToIgnore() as $string){
+            foreach($this->getURLItemsToIgnore() as $i => $string){
                  if(strpos($link, $string) !== false){return true;}
             }
         }
