@@ -3,7 +3,7 @@
     "description": "Create a sitemap for your site creaws any URL and creates a sitemap",
     "type": "library",
     "require": {
-        "guzzlehttp/guzzle": "^6.3",
+        "guzzlehttp/guzzle": "^7.0",
         "kub-at/php-simple-html-dom-parser": "^1.8"
     },
     "require-dev": {
