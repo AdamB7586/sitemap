@@ -5,14 +5,17 @@ namespace Sitemap\Tests;
 use PHPUnit\Framework\TestCase;
 use Sitemap\Sitemap;
 
-class SitemapTest extends TestCase{
+class SitemapTest extends TestCase
+{
     public $sitemap;
     
-    protected function setUp(): void {
+    protected function setUp(): void
+    {
         $this->sitemap = new Sitemap();
     }
     
-    protected function tearDown(): void {
+    protected function tearDown(): void
+    {
         $this->sitemap = null;
     }
     
@@ -29,8 +32,10 @@ class SitemapTest extends TestCase{
      * @covers Sitemap\Sitemap::buildLink
      * @covers Sitemap\Sitemap::addLink
      * @covers Sitemap\Sitemap::linkPath
+     * @covers Sitemap\Sitemap::setXMLLayoutPath
      */
-    public function testSetDomain() {
+    public function testSetDomain()
+    {
         $this->assertObjectHasAttribute('url', $this->sitemap->setDomain('https://www.google.co.uk/'));
         $this->assertEquals('https://www.google.co.uk/', $this->sitemap->getDomain());
         $this->assertObjectHasAttribute('url', $this->sitemap->setDomain('http://www.example.com/'));
@@ -41,8 +46,10 @@ class SitemapTest extends TestCase{
      * @covers Sitemap\Sitemap::__construct
      * @covers Sitemap\Sitemap::setFilePath
      * @covers Sitemap\Sitemap::getFilePath
+     * @covers Sitemap\Sitemap::setXMLLayoutPath
      */
-    public function testSetFilePath() {
+    public function testSetFilePath()
+    {
         $this->assertObjectHasAttribute('url', $this->sitemap->setFilePath(dirname(__FILE__)));
         $this->assertEquals(dirname(__FILE__), $this->sitemap->getFilePath());
         $this->assertObjectHasAttribute('url', $this->sitemap->setFilePath(158774));
@@ -52,6 +59,7 @@ class SitemapTest extends TestCase{
     /**
      * @covers Sitemap\Sitemap::__construct
      * @covers Sitemap\Sitemap::createSitemap
+     * @covers Sitemap\Sitemap::getDomain
      * @covers Sitemap\Sitemap::setDomain
      * @covers Sitemap\Sitemap::getMarkup
      * @covers Sitemap\Sitemap::getImages
@@ -68,8 +76,12 @@ class SitemapTest extends TestCase{
      * @covers Sitemap\Sitemap::urlXML
      * @covers Sitemap\Sitemap::copyXMLStyle
      * @covers Sitemap\Sitemap::getFilePath
+     * @covers Sitemap\Sitemap::getLayoutFile
+     * @covers Sitemap\Sitemap::getXMLLayoutPath
+     * @covers Sitemap\Sitemap::setXMLLayoutPath
      */
-    public function testCreateSitemap() {
+    public function testCreateSitemap()
+    {
         $this->sitemap->setDomain('https://www.example.com/')->setFilePath(dirname(__FILE__).'/');
         $this->assertTrue($this->sitemap->createSitemap(true, 1));
         $this->assertStringContainsString('<loc>https://www.example.com/</loc>', file_get_contents(dirname(__FILE__).'/sitemap.xml'));
