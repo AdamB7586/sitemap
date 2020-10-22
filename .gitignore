@@ -2,6 +2,8 @@
 /vendor/
 .gitignore
 *.lock
+*.bak
+*.cache
 clover.xml
 /tests/sitemap.xml
 /tests/style.xsl
