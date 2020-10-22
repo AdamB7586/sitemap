@@ -79,11 +79,21 @@ class SitemapTest extends TestCase
      * @covers Sitemap\Sitemap::getLayoutFile
      * @covers Sitemap\Sitemap::getXMLLayoutPath
      * @covers Sitemap\Sitemap::setXMLLayoutPath
+     * @covers Sitemap\Sitemap::checkForIgnoredStrings
+     * @covers Sitemap\Sitemap::getURLItemsToIgnore
+     * @covers Sitemap\Sitemap::addURLItemstoIgnore
      */
     public function testCreateSitemap()
     {
-        $this->sitemap->setDomain('https://www.example.com/')->setFilePath(dirname(__FILE__).'/');
+        $this->sitemap->setDomain('https://www.netflix.com/')->setFilePath(dirname(__FILE__).'/');
         $this->assertTrue($this->sitemap->createSitemap(true, 1));
-        $this->assertStringContainsString('<loc>https://www.example.com/</loc>', file_get_contents(dirname(__FILE__).'/sitemap.xml'));
+        $this->assertStringContainsString('<loc>https://www.netflix.com/</loc>', file_get_contents(dirname(__FILE__).'/sitemap.xml'));
+        
+        //Test with setting domain in contructor
+        $newSitemap = new Sitemap('https://www.adambinnersley.co.uk/');
+        $newSitemap->setFilePath(dirname(__FILE__).'/')->addURLItemstoIgnore('about-me');
+        $this->assertTrue($newSitemap->createSitemap(false));
+        $this->assertStringContainsString('<loc>https://www.adambinnersley.co.uk/</loc>', file_get_contents(dirname(__FILE__).'/sitemap.xml'));
+        $this->assertStringNotContainsString('about-me', file_get_contents(dirname(__FILE__).'/sitemap.xml'));
     }
 }
