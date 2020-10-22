@@ -338,8 +338,7 @@ class Sitemap
     
     /**
      * Creates the image XML string information to add to the sitemap for the website
-     * @param string $src The full source of the image including the domain
-     * @param string $caption The caption to give the image in the sitemap
+     * @param array|false $images The array of images for the site
      * @return string Return the formatted string for the image section of the sitemap
      */
     private function imageXML($images)
@@ -356,13 +355,7 @@ class Sitemap
     
     /**
      * Return the XML sitemap video section formatted string
-     * @param string $location The location of the video
-     * @param string $title The title of the video
-     * @param string $description A short description of the video
-     * @param string $thumbnailLoc The image thumbnail you want to use for the video
-     * @param int $duration The duration of the video (seconds I think)
-     * @param string $friendly Is it a family friendly video yes/no
-     * @param string $live Is it a live stream yes/no
+     * @param array|false $videos The array of videos for the site
      * @return string Returns the video sitemap formatted string
      */
     private function videoXML($videos)
@@ -388,12 +381,10 @@ class Sitemap
     {
         $assets = '';
         foreach ($this->parseSite($maxLevels) as $url => $info) {
-            $assets.= $this->urlXML($url, (isset($info['level']) ? $this->priority[$info['level']] : 1), (isset($info['level']) ? $this->frequency[$info['level']] : 'weekly'), date('c'), (isset($info['images']) ? $this->imageXML($info['images']) : '').(isset($info['videos']) ? $this->videoXML($info['videos']) : ''));
+            $assets.= $this->urlXML($url, (isset($info['level']) ? $this->priority[$info['level']] : 1), (isset($info['level']) ? $this->frequency[$info['level']] : 'weekly'), date('c'), (isset($info['images']) ? $this->imageXML($info['images']) : false).(isset($info['videos']) ? $this->videoXML($info['videos']) : false));
         }
         $sitemapXML = $this->getLayoutFile('sitemapXML');
-        if ($sitemapXML !== false) {
-            $sitemap = sprintf($sitemapXML, ($includeStyle === true ? '<?xml-stylesheet type="text/xsl" href="style.xsl"?>' : ''), $assets);
-        }
+        $sitemap = ($sitemapXML !== false ? sprintf($sitemapXML, ($includeStyle === true ? '<?xml-stylesheet type="text/xsl" href="style.xsl"?>' : ''), $assets) : '');
         if ($includeStyle === true) {
             $this->copyXMLStyle();
         }
