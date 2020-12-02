@@ -1,6 +1,6 @@
 {
     "name": "adamb/sitemap",
-    "description": "Create a sitemap for your site creaws any URL and creates a sitemap",
+    "description": "Create a sitemap for your domain, crawls all URL's except those with nofollow links and those explicitly stated to ignore to creates a sitemap",
     "type": "library",
     "require": {
         "guzzlehttp/guzzle": "^7.0",
